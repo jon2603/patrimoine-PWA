@@ -1,0 +1,3122 @@
+﻿<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Private Wealth V2</title>
+  <meta name="application-name" content="Patrimoine">
+  <meta name="apple-mobile-web-app-title" content="Patrimoine">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#172622">
+  <meta name="color-scheme" content="light dark">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: light-dark(#f4f1ea, #0d1110);
+      --surface: light-dark(#fbf8f0, #111615);
+      --panel: light-dark(#fffdf8, #171d1b);
+      --panel-2: light-dark(#f7f2e8, #1d2421);
+      --panel-3: light-dark(#ede5d7, #222a27);
+      --ink: light-dark(#172622, #f2ead9);
+      --text: light-dark(#1a211f, #f4efe4);
+      --muted: light-dark(#69716b, #a9a296);
+      --line: light-dark(#ded5c4, #303934);
+      --line-soft: light-dark(#eee7da, #26302b);
+      --good: #147256;
+      --bad: #a43d3a;
+      --accent: #a98237;
+      --accent-2: #18564e;
+      --warn: #9a6818;
+      --shadow: light-dark(0 16px 42px rgba(34, 29, 19, 0.08), 0 18px 48px rgba(0, 0, 0, 0.32));
+      --shadow-soft: light-dark(0 8px 22px rgba(34, 29, 19, 0.06), 0 10px 26px rgba(0, 0, 0, 0.24));
+      font-family: "Aptos", "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100svh;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      color: var(--text);
+      background:
+        radial-gradient(circle at 18% -8%, light-dark(rgba(169, 130, 55, 0.20), rgba(169, 130, 55, 0.10)), transparent 30rem),
+        radial-gradient(circle at 92% 4%, light-dark(rgba(24, 86, 78, 0.15), rgba(24, 86, 78, 0.13)), transparent 26rem),
+        linear-gradient(180deg, var(--surface) 0%, var(--bg) 34rem);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(color-mix(in srgb, var(--line-soft) 28%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--line-soft) 24%, transparent) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.22), transparent 52%);
+    }
+
+    button, input, select { font: inherit; }
+
+    button {
+      min-height: 36px;
+      border: 1px solid color-mix(in srgb, var(--line) 88%, var(--accent) 12%);
+      border-radius: 6px;
+      padding: 8px 13px;
+      color: var(--text);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 96%, #fff 4%), color-mix(in srgb, var(--panel-2) 78%, var(--panel) 22%));
+      box-shadow: 0 1px 0 color-mix(in srgb, #fff 55%, transparent);
+      cursor: pointer;
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+    }
+
+    button:hover {
+      border-color: var(--accent);
+      background: color-mix(in srgb, var(--panel) 84%, var(--accent) 16%);
+      box-shadow: var(--shadow-soft);
+      transform: translateY(-1px);
+    }
+
+    button.primary {
+      color: light-dark(#fffdfa, #151411);
+      border-color: var(--accent);
+      background: linear-gradient(135deg, var(--accent), #7f6228);
+      box-shadow: 0 10px 24px light-dark(rgba(127, 98, 40, 0.22), rgba(169, 130, 55, 0.16));
+    }
+
+    button.nav {
+      position: relative;
+      display: flex;
+      align-items: center;
+      text-align: left;
+      background: transparent;
+      border-color: transparent;
+      color: var(--muted);
+      width: 100%;
+      box-shadow: none;
+    }
+
+    button.nav.active {
+      color: var(--text);
+      border-color: color-mix(in srgb, var(--accent) 34%, var(--line) 66%);
+      background: color-mix(in srgb, var(--panel) 80%, var(--accent) 10%);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    button.danger { color: var(--bad); }
+
+    button.privacy-on {
+      color: light-dark(#fffdfa, #151411);
+      border-color: var(--accent-2);
+      background: linear-gradient(135deg, var(--accent-2), #123f39);
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line-soft);
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: var(--text);
+      background: light-dark(#fffefa, #121816);
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+    }
+
+    label {
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 24px;
+      max-width: 1560px;
+      margin: 0 auto;
+      padding: max(30px, env(safe-area-inset-top)) max(30px, env(safe-area-inset-right)) max(30px, env(safe-area-inset-bottom)) max(30px, env(safe-area-inset-left));
+      position: relative;
+      z-index: 1;
+    }
+
+    aside {
+      position: sticky;
+      top: 22px;
+      align-self: start;
+      display: grid;
+      gap: 16px;
+    }
+
+    .brand {
+      padding: 22px;
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+      border-radius: 8px;
+      background:
+        linear-gradient(145deg, color-mix(in srgb, var(--ink) 92%, var(--accent-2) 8%), color-mix(in srgb, var(--accent-2) 72%, #101816 28%)),
+        var(--ink);
+      box-shadow: var(--shadow);
+      color: light-dark(#fffdfa, #171815);
+    }
+
+    .brand h1 {
+      margin-bottom: 10px;
+      font-size: 25px;
+      line-height: 1.05;
+    }
+
+    .brand-card {
+      display: grid;
+      gap: 9px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid light-dark(rgba(255, 253, 250, 0.22), rgba(23, 24, 21, 0.22));
+      font-size: 12px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: light-dark(rgba(255, 253, 250, 0.72), rgba(23, 24, 21, 0.72));
+    }
+
+    .brand-row strong {
+      color: light-dark(#fffdfa, #171815);
+      font-weight: 500;
+    }
+
+    .brand .eyebrow, .brand .muted { color: light-dark(rgba(255, 253, 250, 0.72), rgba(23, 24, 21, 0.72)); }
+
+    nav {
+      display: grid;
+      gap: 5px;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--panel) 90%, transparent);
+      box-shadow: var(--shadow);
+    }
+
+    nav::before {
+      content: "Portfolio";
+      margin: 2px 8px 6px;
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .nav-index {
+      display: inline-grid;
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+      place-items: center;
+      border-radius: 999px;
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 10%, transparent);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding: 6px 8px;
+      border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .muted, .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .subtitle { margin: 0; }
+
+    header .eyebrow {
+      margin-bottom: 2px;
+      font-size: 9px;
+      letter-spacing: 0.13em;
+    }
+
+    header .subtitle { display: none; }
+
+    header button {
+      min-height: 30px;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    body.privacy-mode .executive-value,
+    body.privacy-mode .executive-note {
+      filter: blur(7px);
+      user-select: none;
+    }
+
+    body.privacy-mode .executive-value {
+      color: color-mix(in srgb, var(--text) 24%, transparent);
+    }
+
+    .toolbar, .panel-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .executive-strip {
+      display: grid;
+      grid-template-columns: minmax(240px, 1.35fr) repeat(3, minmax(150px, 1fr));
+      gap: 1px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line) 76%);
+      border-radius: 8px;
+      background: var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .executive-cell {
+      min-height: 74px;
+      padding: 12px 14px;
+      background:
+        linear-gradient(180deg, color-mix(in srgb, var(--panel) 94%, #fff 6%), color-mix(in srgb, var(--panel-2) 58%, var(--panel) 42%));
+    }
+
+    .executive-cell.feature {
+      background:
+        linear-gradient(145deg, color-mix(in srgb, var(--ink) 90%, var(--accent) 10%), color-mix(in srgb, var(--accent-2) 76%, #111715 24%));
+      color: light-dark(#fffdfa, #171815);
+    }
+
+    .executive-label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .executive-cell.feature .executive-label,
+    .executive-cell.feature .executive-note {
+      color: light-dark(rgba(255, 253, 250, 0.72), rgba(23, 24, 21, 0.72));
+    }
+
+    .executive-value {
+      display: block;
+      color: inherit;
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1.05;
+      overflow-wrap: anywhere;
+    }
+
+    .executive-cell.feature .executive-value { font-size: 24px; }
+
+    .executive-note {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+    .hidden { display: none; }
+    #executiveStrip.hidden { display: none; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.82fr) minmax(0, 2.18fr);
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(180px, 1fr));
+      gap: 14px;
+    }
+
+    .grid.two { grid-template-columns: repeat(2, minmax(180px, 1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(160px, 1fr)); }
+
+    .stat, .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .stat {
+      position: relative;
+      min-height: 104px;
+      padding: 14px 15px;
+      overflow: hidden;
+      background: linear-gradient(180deg, var(--panel), color-mix(in srgb, var(--panel-2) 54%, var(--panel) 46%));
+    }
+
+    .stat.asset-stocks::before { background: #3d6f9f; }
+    .stat.asset-bonds::before { background: #8d7a42; }
+    .stat.asset-cash::before { background: #147256; }
+    .stat.asset-private::before { background: #6a5a91; }
+    .stat.asset-realestate::before { background: #7b6a4a; }
+    .stat.asset-other::before { background: #9a6818; }
+
+    .stat::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 3px;
+      background: color-mix(in srgb, var(--accent) 80%, transparent);
+    }
+
+    .hero-stat {
+      position: relative;
+      display: grid;
+      align-content: space-between;
+      min-height: 148px;
+      padding: 16px 17px;
+      background:
+        linear-gradient(180deg, color-mix(in srgb, var(--panel) 88%, var(--accent) 12%), color-mix(in srgb, var(--panel-2) 78%, var(--ink) 22%));
+      border-color: color-mix(in srgb, var(--accent) 30%, var(--line) 70%);
+      color: var(--text);
+    }
+
+    .hero-stat::before { width: 0; }
+
+    .hero-stat::after {
+      content: attr(data-currency);
+      position: absolute;
+      right: 16px;
+      top: 15px;
+      color: color-mix(in srgb, var(--accent) 58%, var(--muted) 42%);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+    }
+
+    .stat span {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero-stat span, .hero-stat small { color: var(--muted); }
+
+    .stat strong {
+      display: block;
+      color: inherit;
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .hero-stat strong {
+      margin: 7px 0 5px;
+      font-size: 26px;
+      letter-spacing: 0;
+    }
+
+    .hero-kicker {
+      display: block;
+      color: color-mix(in srgb, var(--accent) 72%, var(--muted) 28%);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .hero-breakdown {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid color-mix(in srgb, var(--accent) 18%, var(--line) 82%);
+    }
+
+    .hero-breakdown div {
+      min-width: 0;
+    }
+
+    .hero-breakdown span {
+      margin: 0 0 3px;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+    }
+
+    .hero-breakdown strong {
+      margin: 0;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+    }
+
+    .stat small {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .currency-toggle {
+      display: inline-flex;
+      gap: 4px;
+      padding: 3px;
+      border: 1px solid light-dark(rgba(255, 253, 250, 0.24), rgba(23, 24, 21, 0.24));
+      border-radius: 999px;
+      background: light-dark(rgba(255, 253, 250, 0.12), rgba(23, 24, 21, 0.12));
+    }
+
+    .currency-toggle button {
+      min-height: 20px;
+      min-width: 32px;
+      padding: 3px 6px;
+      border-radius: 999px;
+      border-color: transparent;
+      box-shadow: none;
+      color: inherit;
+      background: transparent;
+      font-size: 10px;
+      line-height: 1;
+    }
+
+    .currency-toggle button.active {
+      color: light-dark(#171815, #fffdfa);
+      background: var(--accent);
+    }
+
+    .panel {
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 17px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--panel-2) 92%, #fff 8%), var(--panel));
+    }
+
+    .panel-head h2::before {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-right: 9px;
+      border-radius: 999px;
+      background: var(--accent);
+      vertical-align: 1px;
+    }
+
+    .settings {
+      display: grid;
+      grid-template-columns: 1.25fr 150px 150px 180px;
+      gap: 12px;
+      padding: 17px;
+      align-items: end;
+      background: color-mix(in srgb, var(--panel) 92%, var(--panel-2) 8%);
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--panel);
+    }
+
+    table {
+      width: 100%;
+      min-width: 0;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    table.compact { min-width: 0; }
+    table.wide {
+      min-width: 0;
+      table-layout: fixed;
+    }
+
+    table.wide th,
+    table.wide td {
+      padding: 6px 5px;
+      font-size: 11px;
+      line-height: 1.2;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    table.wide td.num,
+    table.wide th.num {
+      white-space: normal;
+    }
+
+    table.wide input,
+    table.wide select {
+      min-width: 0;
+      width: 100%;
+      min-height: 28px;
+      padding: 4px 5px;
+      font-size: 11px;
+    }
+
+    table.wide .mini {
+      min-height: 26px;
+      padding: 4px 6px;
+      font-size: 11px;
+    }
+
+    table.fit {
+      min-width: 0;
+      table-layout: fixed;
+    }
+
+    th, td {
+      padding: 10px 11px;
+      border-bottom: 1px solid var(--line-soft);
+      vertical-align: middle;
+      font-size: 13px;
+    }
+
+    table.fit th, table.fit td {
+      padding: 8px 7px;
+      font-size: 12px;
+    }
+
+    table.fit th {
+      white-space: normal;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-align: left;
+      text-transform: uppercase;
+      white-space: normal;
+      background: color-mix(in srgb, var(--panel-2) 78%, var(--panel) 22%);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tbody tr {
+      background: var(--panel);
+      transition: background 140ms ease;
+    }
+
+    tbody tr:nth-child(even) { background: color-mix(in srgb, var(--panel) 90%, var(--panel-2) 10%); }
+
+    tbody tr:hover { background: color-mix(in srgb, var(--panel) 86%, var(--accent) 14%); }
+
+    th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    th.sortable::after {
+      content: "";
+      display: inline-block;
+      margin-left: 4px;
+      color: var(--accent);
+      font-size: 10px;
+    }
+
+    th.sortable.sort-asc::after { content: " ^"; }
+    th.sortable.sort-desc::after { content: " v"; }
+
+    td.num, th.num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: normal;
+    }
+
+    th.total-highlight,
+    td.total-highlight {
+      background: color-mix(in srgb, var(--accent) 12%, var(--panel) 88%);
+      border-left: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line-soft) 76%);
+      border-right: 1px solid color-mix(in srgb, var(--accent) 14%, var(--line-soft) 86%);
+    }
+
+    th.total-highlight {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    td.total-highlight {
+      color: var(--ink);
+      font-weight: 650;
+    }
+
+    tbody tr:hover td.total-highlight {
+      background: color-mix(in srgb, var(--accent) 18%, var(--panel) 82%);
+    }
+
+    td.market-highlight {
+      border-left: 1px solid color-mix(in srgb, var(--line-soft) 72%, transparent);
+      border-right: 1px solid color-mix(in srgb, var(--line-soft) 72%, transparent);
+      font-weight: 700;
+    }
+
+    td.market-highlight.positive {
+      color: var(--good);
+      background: color-mix(in srgb, var(--good) 10%, var(--panel) 90%);
+    }
+
+    td.market-highlight.negative {
+      color: var(--bad);
+      background: color-mix(in srgb, var(--bad) 10%, var(--panel) 90%);
+    }
+
+    tbody tr:hover td.market-highlight.positive {
+      background: color-mix(in srgb, var(--good) 16%, var(--panel) 84%);
+    }
+
+    tbody tr:hover td.market-highlight.negative {
+      background: color-mix(in srgb, var(--bad) 16%, var(--panel) 84%);
+    }
+
+    td.actions {
+      width: 1%;
+      text-align: right;
+      white-space: normal;
+    }
+
+    .expand-btn {
+      min-height: 18px;
+      min-width: 18px;
+      padding: 0;
+      font-weight: 600;
+      line-height: 1;
+      border-radius: 999px;
+      font-size: 11px;
+    }
+
+    td.expand-cell, th.expand-cell {
+      width: 24px;
+      min-width: 24px;
+      max-width: 24px;
+      padding-left: 6px;
+      padding-right: 2px;
+      text-align: center;
+    }
+
+    tr.detail-row td {
+      background: color-mix(in srgb, var(--panel-2) 76%, var(--accent) 10%);
+      color: var(--muted);
+    }
+
+    .detail-label {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    td input, td select {
+      min-width: 88px;
+      padding: 7px 8px;
+    }
+
+    td.symbol input {
+      min-width: 78px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .mini {
+      min-height: 30px;
+      padding: 6px 9px;
+      font-size: 12px;
+    }
+
+    .status {
+      padding: 12px 17px;
+      border-top: 1px solid var(--line-soft);
+      color: var(--muted);
+      font-size: 12px;
+      background: color-mix(in srgb, var(--panel) 92%, var(--panel-2) 8%);
+    }
+
+    .collapsible-panel.collapsed .collapsible-content,
+    .collapsible-panel.collapsed .status {
+      display: none;
+    }
+
+    .collapsible-panel.collapsed #hideKeyBtn {
+      display: none;
+    }
+
+    .collapse-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sync-box {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 9px 11px;
+      border-top: 0;
+      background:
+        linear-gradient(90deg, color-mix(in srgb, var(--accent-2) 12%, var(--panel) 88%), var(--panel));
+    }
+
+    .sync-box strong {
+      display: block;
+      margin-bottom: 2px;
+      font-weight: 500;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .sync-box .muted {
+      font-size: 11px;
+      line-height: 1.35;
+    }
+
+    .sync-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+
+    .sync-actions button {
+      min-height: 30px;
+      padding: 6px 9px;
+      font-size: 12px;
+    }
+
+    .positive { color: var(--good); }
+    .negative { color: var(--bad); }
+    .warning { color: var(--warn); }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .empty {
+      padding: 22px 14px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .bar-list {
+      display: grid;
+      gap: 14px;
+      padding: 17px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 160px minmax(140px, 1fr) 130px;
+      gap: 12px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .bar-row strong {
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .bar-track {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--line-soft) 78%, var(--panel-3) 22%);
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: var(--w);
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent-2), var(--accent));
+    }
+
+    .fx-risk {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 1px;
+      overflow: hidden;
+      background: var(--line-soft);
+    }
+
+    .fx-cell {
+      min-height: 92px;
+      padding: 15px 16px;
+      background: linear-gradient(180deg, var(--panel), color-mix(in srgb, var(--panel-2) 54%, var(--panel) 46%));
+    }
+
+    .fx-cell span {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .fx-cell strong {
+      display: block;
+      color: var(--ink);
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+    }
+
+    .fx-cell small {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .chart-wrap {
+      padding: 17px;
+    }
+
+    .history-chart {
+      display: block;
+      width: 100%;
+      height: 320px;
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      background: light-dark(#fffefa, #121816);
+    }
+
+    .mini-chart {
+      display: block;
+      width: 100%;
+      height: 260px;
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      background: light-dark(#fffefa, #121816);
+    }
+
+
+    .snapshot-note {
+      padding: 0 17px 17px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 1080px) {
+      .app { grid-template-columns: 1fr; }
+      aside { position: static; }
+      nav { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
+      nav::before { grid-column: 1 / -1; }
+      button.nav { justify-content: flex-start; }
+      .executive-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 780px) {
+      header, .panel-head { align-items: stretch; flex-direction: column; }
+      header { gap: 8px; padding: 6px 8px; }
+      .toolbar, .panel-actions { justify-content: flex-start; }
+      .grid, .grid.two, .grid.four, .settings, .split { grid-template-columns: 1fr; }
+      .executive-strip { grid-template-columns: 1fr; }
+      .executive-cell, .executive-cell.feature { min-height: auto; padding: 11px 13px; }
+      .fx-risk { grid-template-columns: 1fr 1fr; }
+      .sync-box { grid-template-columns: 1fr; }
+      .sync-actions { justify-content: flex-start; }
+      nav { grid-template-columns: 1fr 1fr; }
+      .bar-row { grid-template-columns: 1fr; gap: 6px; }
+    }
+
+    @media (max-width: 520px) {
+      .app { padding: 12px; }
+      nav { grid-template-columns: 1fr; }
+      h1 { font-size: 22px; }
+      .stat strong { font-size: 20px; }
+      .hero-stat { min-height: 138px; }
+      .hero-stat strong { font-size: 24px; }
+      .executive-value { font-size: 17px; }
+      .executive-cell.feature .executive-value { font-size: 22px; }
+      .fx-risk { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <aside>
+      <section class="brand">
+        <p class="eyebrow">Private Banking Preview</p>
+        <h1>Private Wealth</h1>
+        <p class="muted">V2 cockpit for personal reporting in EUR.</p>
+        <div class="brand-card" aria-label="Dashboard profile">
+          <div class="brand-row">
+            <span>Base currency</span>
+            <div class="currency-toggle" aria-label="Dashboard currency">
+              <button id="dashboardCurrencyEur" type="button" data-dashboard-currency="EUR">EUR</button>
+              <button id="dashboardCurrencyUsd" type="button" data-dashboard-currency="USD">USD</button>
+            </div>
+          </div>
+          <div class="brand-row"><span>View</span><strong>Consolidated</strong></div>
+          <div class="brand-row"><span>Status</span><strong>Local</strong></div>
+        </div>
+      </section>
+      <nav aria-label="Navigation">
+        <button class="nav active" type="button" data-page-target="dashboard"><span class="nav-index">01</span>Dashboard</button>
+        <button class="nav" type="button" data-page-target="stocks"><span class="nav-index">02</span>Stocks</button>
+        <button class="nav" type="button" data-page-target="bonds"><span class="nav-index">03</span>Bonds</button>
+        <button class="nav" type="button" data-page-target="private"><span class="nav-index">04</span>Private equity</button>
+        <button class="nav" type="button" data-page-target="realestate"><span class="nav-index">05</span>Real estate</button>
+        <button class="nav" type="button" data-page-target="cash"><span class="nav-index">06</span>Cash</button>
+        <button class="nav" type="button" data-page-target="divers"><span class="nav-index">07</span>Other</button>
+        <button class="nav" type="button" data-page-target="history"><span class="nav-index">08</span>History</button>
+        <button class="nav" type="button" data-page-target="banks"><span class="nav-index">09</span>By bank</button>
+      </nav>
+    </aside>
+
+    <div>
+      <header>
+        <div>
+          <p class="eyebrow" id="pageEyebrow">Consolidation</p>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p class="subtitle" id="pageSubtitle">A calmer private-banking view of wealth, PnL and allocation.</p>
+        </div>
+        <div class="toolbar">
+          <button id="privacyToggle" type="button" aria-pressed="false">Hide data</button>
+          <button id="refreshBtn" class="primary" type="button">Refresh prices</button>
+          <input id="importFile" class="hidden" type="file" accept="application/json">
+        </div>
+      </header>
+
+      <section id="executiveStrip" class="executive-strip hidden" aria-label="Executive summary">
+        <div class="executive-cell feature">
+          <span class="executive-label">Total relationship value</span>
+          <strong class="executive-value" id="executiveTotal">-</strong>
+          <small class="executive-note" id="executiveTotalNote">Consolidated across all asset classes</small>
+        </div>
+        <div class="executive-cell">
+          <span class="executive-label">Listed performance</span>
+          <strong class="executive-value" id="executiveDailyPnl">-</strong>
+          <small class="executive-note" id="executiveDailyPnlNote">Daily PnL on stocks</small>
+        </div>
+        <div class="executive-cell">
+          <span class="executive-label">Liquidity</span>
+          <strong class="executive-value" id="executiveCash">-</strong>
+          <small class="executive-note" id="executiveCashNote">Cash and equivalents</small>
+        </div>
+        <div class="executive-cell">
+          <span class="executive-label">Last refresh</span>
+          <strong class="executive-value" id="executiveLastUpdate">-</strong>
+          <small class="executive-note">Market data status</small>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="sync-box">
+          <div>
+            <strong>OneDrive Sync</strong>
+            <div class="muted" id="dataStatus">Active data: local browser storage. To sync manually, load or save patrimoine-data.json through Files, iCloud Drive, OneDrive or Downloads.</div>
+          </div>
+          <div class="sync-actions">
+            <button id="loadDataBtn" type="button">Load patrimoine-data.json</button>
+            <button id="saveDataBtn" class="primary" type="button">Save patrimoine-data.json</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="marketSettingsPanel" class="panel collapsible-panel collapsed">
+        <div class="panel-head">
+          <h2>Market Settings</h2>
+          <div class="panel-actions">
+            <button id="marketSettingsToggle" class="mini collapse-toggle" type="button" aria-expanded="false">Show settings v</button>
+            <button id="hideKeyBtn" class="mini" type="button">Show key</button>
+          </div>
+        </div>
+        <div id="marketSettingsContent" class="settings collapsible-content">
+          <label>Finnhub API key <input id="apiKey" type="password" autocomplete="off" placeholder="Paste your Finnhub key here"></label>
+          <label>EUR / USD <input id="eurUsd" type="number" step="0.0001" min="0" inputmode="decimal"></label>
+          <label>Auto refresh
+            <select id="refreshInterval">
+              <option value="0">Never</option>
+              <option value="30">30 sec</option>
+              <option value="60">1 min</option>
+            </select>
+          </label>
+          <label>Last update <input id="lastUpdate" type="text" readonly></label>
+        </div>
+        <div class="status" id="statusLine">The Refresh prices button works at any time. Auto refresh is optional: Never, 30 sec or 1 min.</div>
+      </section>
+
+      <section id="page-dashboard" class="page active">
+        <section class="hero" aria-label="Wealth summary">
+          <div class="stat hero-stat" id="dashboardHeroStat" data-currency="EUR">
+            <em class="hero-kicker">Private wealth statement</em>
+            <span>Total wealth</span>
+            <strong id="totalWealth">-</strong>
+            <small id="totalContext">-</small>
+            <div class="hero-breakdown" aria-label="Total wealth breakdown">
+              <div><span>Liquid</span><strong id="heroLiquid">-</strong></div>
+              <div><span>Long term</span><strong id="heroLongTerm">-</strong></div>
+              <div><span>Banks</span><strong id="heroBanks">-</strong></div>
+              <div><span>Classes</span><strong id="heroClasses">-</strong></div>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="stat"><span>Daily PnL</span><strong id="dailyPnl">-</strong><small id="dailyPnlPct">-</small></div>
+            <div class="stat asset-stocks"><span>Listed stocks</span><strong id="stocksValue">-</strong><small id="stocksPnl">-</small></div>
+            <div class="stat asset-bonds"><span>Bonds</span><strong id="bondsValue">-</strong><small id="bondsAccrued">-</small></div>
+            <div class="stat asset-cash"><span>Cash</span><strong id="cashValue">-</strong><small id="cashContext">-</small></div>
+            <div class="stat asset-private"><span>Private equity</span><strong id="peValue">-</strong><small id="peContext">-</small></div>
+            <div class="stat asset-realestate"><span>Real estate</span><strong id="realEstateValue">-</strong><small id="realEstateContext">-</small></div>
+            <div class="stat asset-other"><span>Other</span><strong id="diversValue">-</strong><small id="diversContext">-</small></div>
+          </div>
+        </section>
+
+        <div class="split">
+          <section class="panel">
+            <div class="panel-head"><h2>Allocation</h2></div>
+            <div class="bar-list" id="allocationBars"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head"><h2>Wealth by bank</h2></div>
+            <div class="table-wrap">
+              <table class="compact">
+                <thead><tr><th>Bank</th><th class="num">EUR value</th><th class="num">Weight</th></tr></thead>
+                <tbody id="dashboardBankBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>FX Risk EUR/USD</h2>
+          </div>
+          <div class="fx-risk">
+            <div class="fx-cell">
+              <span>USD exposure</span>
+              <strong id="fxUsdExposure">-</strong>
+              <small id="fxUsdWeight">-</small>
+            </div>
+            <div class="fx-cell">
+              <span>EUR exposure</span>
+              <strong id="fxEurExposure">-</strong>
+              <small id="fxEurWeight">-</small>
+            </div>
+            <div class="fx-cell">
+              <span>EUR/USD -5%</span>
+              <strong id="fxDownImpact">-</strong>
+              <small>USD stronger vs EUR</small>
+            </div>
+            <div class="fx-cell">
+              <span>EUR/USD +5%</span>
+              <strong id="fxUpImpact">-</strong>
+              <small>USD weaker vs EUR</small>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Intraday wealth evolution</h2>
+            <div class="panel-actions">
+              <div class="currency-toggle" aria-label="Intraday chart range">
+                <button id="intradayRange24h" type="button" data-intraday-range="24h">24h</button>
+                <button id="intradayRange7d" type="button" data-intraday-range="7d">7d</button>
+              </div>
+              <div class="muted" id="intradaySnapshotStatus">Auto snapshot every 5 min while this page is open.</div>
+            </div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="intradayChart" class="mini-chart" height="260"></canvas>
+          </div>
+          <div class="snapshot-note" id="intradaySnapshotNote">Waiting for the first automatic snapshot.</div>
+        </section>
+      </section>
+
+      <section id="page-stocks" class="page">
+        <section class="grid three">
+          <div class="stat"><span>Stock value</span><strong id="stocksPageValue">-</strong><small>In EUR</small></div>
+          <div class="stat"><span>Daily PnL</span><strong id="stocksPageDayPnl">-</strong><small id="stocksPageDayPct">-</small></div>
+          <div class="stat"><span>Total PnL</span><strong id="stocksPageTotalPnl">-</strong><small>Vs Cost basis</small></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Consolidated exposure by stock</h2>
+          </div>
+          <div class="table-wrap">
+            <table class="fit">
+              <thead>
+                <tr><th class="expand-cell"></th><th>Ticker</th><th>Name</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Previous</th><th class="num">Move %</th><th class="num">Cost basis</th><th class="num">EUR value</th><th class="num">Day PnL</th><th class="num">Total PnL</th><th class="num">Bks.</th></tr>
+              </thead>
+              <tbody id="stockExposureBody"></tbody>
+            </table>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Stock portfolio details</h2>
+            <div class="panel-actions"><button id="addStockBtn" type="button">Add row</button></div>
+          </div>
+          <div class="table-wrap">
+            <table class="wide">
+              <thead>
+                <tr><th>Ticker</th><th>Name</th><th>Bank</th><th class="num">Quantity</th><th class="num">Cost basis</th><th>Currency</th><th class="num">EUR value</th><th class="num">Day PnL</th><th class="num">Total PnL</th><th></th></tr>
+              </thead>
+              <tbody id="stocksBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="page-bonds" class="page">
+        <section class="grid three">
+          <div class="stat"><span>Dirty value</span><strong id="bondsPageValue">-</strong><small>Clean + accrued coupon</small></div>
+          <div class="stat"><span>Accrued coupon</span><strong id="bondsPageAccrued">-</strong><small>Daily calculation</small></div>
+          <div class="stat"><span>Total PnL</span><strong id="bondsPagePnl">-</strong><small>Vs clean cost</small></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>US Treasuries and private OTC bonds</h2>
+            <div class="panel-actions"><button id="addBondBtn" type="button">Add bond</button></div>
+          </div>
+          <div class="table-wrap">
+            <table class="wide">
+              <thead>
+                <tr><th>Name</th><th>Type</th><th>Bank</th><th>Issuer</th><th>Currency</th><th class="num">Nominal</th><th class="num">Clean px</th><th class="num">Cost</th><th class="num">Coupon %</th><th class="num">Freq.</th><th>Last coupon</th><th>Next coupon</th><th>Maturity</th><th>Day count</th><th class="num">Accrued EUR</th><th class="num">EUR value</th><th class="num">PnL</th><th></th></tr>
+              </thead>
+              <tbody id="bondsBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="page-private" class="page">
+        <section class="grid four">
+          <div class="stat"><span>Private value</span><strong id="privatePageValue">-</strong><small>Total NAV</small></div>
+          <div class="stat"><span>Commitment</span><strong id="privatePageCommitment">-</strong><small id="privatePageCommitmentContext">-</small></div>
+          <div class="stat"><span>Called capital</span><strong id="privatePageCalled">-</strong><small id="privatePageCalledContext">-</small></div>
+          <div class="stat"><span>Largest deal</span><strong id="privatePageLargest">-</strong><small id="privatePageLargestContext">-</small></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Private equity</h2>
+            <div class="panel-actions"><button id="addPrivateBtn" type="button">Add asset</button></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Fund / deal</th><th>Bank</th><th class="num">EUR value</th><th class="num">Commitment</th><th class="num">Called</th><th>Valuation date</th><th>Note</th><th></th></tr></thead>
+              <tbody id="privateBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="page-realestate" class="page">
+        <section class="grid four">
+          <div class="stat"><span>Net real estate</span><strong id="realEstatePageNet">-</strong><small>Gross value minus debt</small></div>
+          <div class="stat"><span>Mortgage debt</span><strong id="realEstatePageDebt">-</strong><small id="realEstatePageDebtContext">-</small></div>
+          <div class="stat"><span>Monthly cashflow</span><strong id="realEstatePageRent">-</strong><small id="realEstatePageRentContext">-</small></div>
+          <div class="stat"><span>Net yield</span><strong id="realEstatePageYield">-</strong><small id="realEstatePageYieldContext">-</small></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Real estate</h2>
+            <div class="panel-actions"><button id="addRealEstateBtn" type="button">Add property</button></div>
+          </div>
+          <div class="table-wrap">
+            <table class="wide">
+              <thead><tr><th>Property</th><th>City</th><th>Bank / lender</th><th>Currency</th><th class="num">Gross value</th><th class="num">Loan amount</th><th class="num">Rate %</th><th class="num">Term yrs</th><th>Loan start</th><th class="num">Monthly payment</th><th class="num">Debt left</th><th class="num">Net value EUR</th><th class="num">Monthly rent</th><th class="num">Monthly costs</th><th class="num">Cashflow</th><th class="num">Net yield</th><th>Valuation date</th><th>Note</th><th></th></tr></thead>
+              <tbody id="realEstateBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="page-cash" class="page">
+        <section class="grid four">
+          <div class="stat"><span>Total cash</span><strong id="cashPageTotal">-</strong><small>All banks included</small></div>
+          <div class="stat"><span>Cash EUR</span><strong id="cashPageEur">-</strong><small id="cashPageEurContext">-</small></div>
+          <div class="stat"><span>Cash USD</span><strong id="cashPageUsd">-</strong><small id="cashPageUsdContext">-</small></div>
+          <div class="stat"><span>Largest bank</span><strong id="cashPageTopBank">-</strong><small id="cashPageTopBankContext">-</small></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Cash by bank</h2>
+            <div class="panel-actions"><button id="addCashBtn" type="button">Add cash</button></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Account</th><th>Bank</th><th>Currency</th><th class="num">Amount</th><th class="num">EUR value</th><th></th></tr></thead>
+              <tbody id="cashBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="page-divers" class="page">
+        <section class="grid four">
+          <div class="stat"><span>Other value</span><strong id="diversPageValue">-</strong><small>Total alternative assets</small></div>
+          <div class="stat"><span>Largest asset</span><strong id="diversPageLargest">-</strong><small id="diversPageLargestContext">-</small></div>
+          <div class="stat"><span>Categories</span><strong id="diversPageCategories">-</strong><small id="diversPageCategoriesContext">-</small></div>
+          <div class="stat"><span>USD exposure</span><strong id="diversPageUsd">-</strong><small id="diversPageUsdContext">-</small></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Other</h2>
+            <div class="panel-actions"><button id="addDiversBtn" type="button">Add investment</button></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Category</th><th>Name</th><th>Bank / custodian</th><th>Currency</th><th class="num">Quantity</th><th class="num">Unit price</th><th class="num">EUR value</th><th>Note</th><th></th></tr></thead>
+              <tbody id="diversBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="page-history" class="page">
+        <section class="grid three">
+          <div class="stat"><span>Latest snapshot</span><strong id="historyLastTotal">-</strong><small id="historyLastDate">-</small></div>
+          <div class="stat"><span>Change since previous</span><strong id="historyLastChange">-</strong><small id="historyLastChangePct">-</small></div>
+          <div class="stat"><span>History</span><strong id="historyCount">-</strong><small>Regular manual snapshot</small></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Wealth evolution</h2>
+            <div class="panel-actions"><button id="addSnapshotBtn" class="primary" type="button">Snapshot today</button></div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="historyChart" class="history-chart" height="320"></canvas>
+          </div>
+          <div class="snapshot-note">A snapshot records total value and the main asset buckets as of today. If today already has a snapshot, it is replaced.</div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h2>Snapshots</h2></div>
+          <div class="table-wrap">
+            <table class="compact">
+              <thead><tr><th>Date</th><th class="num">Total EUR</th><th class="num">Change</th><th class="num">Stocks</th><th class="num">Bonds</th><th class="num">Cash</th><th class="num">Private equity</th><th class="num">Real estate</th><th class="num">Other</th><th></th></tr></thead>
+              <tbody id="historyBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="page-banks" class="page">
+        <section class="panel">
+          <div class="panel-head"><h2>Wealth by bank</h2></div>
+          <div class="chart-wrap">
+            <canvas id="bankChart" class="mini-chart" height="260"></canvas>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th class="expand-cell"></th><th>Bank</th><th class="num">Stocks</th><th class="num">Bonds</th><th class="num">Cash</th><th class="num">Private equity</th><th class="num">Real estate</th><th class="num">Other</th><th class="num">+/-</th><th class="num total-highlight">Total EUR</th><th class="num">Weight</th></tr></thead>
+              <tbody id="banksBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const storageKey = "patrimoine-private-bank-v2";
+    const legacyKey = "patrimoine-dashboard-v1";
+    const defaultState = {
+      apiKey: "",
+      eurUsd: 1.087,
+      refreshInterval: 0,
+      lastUpdate: "",
+      marketSettingsCollapsed: true,
+      privacyMode: false,
+      dataSavedAt: "",
+      dataLoadedAt: "",
+      currentPage: "dashboard",
+      dashboardCurrency: "EUR",
+      intradayRange: "24h",
+      history: [],
+      intradaySnapshots: [],
+      stocks: [
+        { symbol: "AAPL", name: "Apple", bank: "Bank 1", portfolio: "Actions US", qty: 10, price: 210, previousClose: 208, cost: 175, currency: "USD" },
+        { symbol: "MSFT", name: "Microsoft", bank: "Bank 1", portfolio: "Actions US", qty: 5, price: 430, previousClose: 425, cost: 360, currency: "USD" },
+        { symbol: "NVDA", name: "Nvidia", bank: "Bank 2", portfolio: "Actions US", qty: 8, price: 120, previousClose: 118, cost: 95, currency: "USD" }
+      ],
+      bonds: [
+        { name: "US Treasury 4.25% 2034", type: "Treasury US", bank: "Bank 1", issuer: "US Treasury", currency: "USD", nominal: 100000, cleanPrice: 101.25, costPrice: 99.5, couponRate: 4.25, frequency: 2, lastCoupon: "2026-05-15", nextCoupon: "2026-11-15", maturity: "2034-11-15", dayCount: "ACT/ACT" },
+        { name: "Absolute Capital OTC", type: "Private OTC bond", bank: "Absolute Capital", issuer: "Private issuer", currency: "USD", nominal: 50000, cleanPrice: 98, costPrice: 100, couponRate: 8, frequency: 4, lastCoupon: "2026-06-30", nextCoupon: "2026-09-30", maturity: "2029-06-30", dayCount: "ACT/360" }
+      ],
+      cash: [
+        { name: "Cash EUR", bank: "Bank 1", currency: "EUR", amount: 25000 },
+        { name: "Liquidity USD", bank: "Bank 2", currency: "USD", amount: 15000 }
+      ],
+      privateAssets: [
+        { name: "Private Equity Fund I", bank: "Bank 1", valueEur: 100000, commitmentEur: 150000, calledEur: 120000, valuationDate: "2026-06-30", note: "Update manually" }
+      ],
+      realEstate: [],
+      divers: [
+        { category: "Montre", name: "Montre collection", bank: "Coffre", currency: "EUR", qty: 1, unitPrice: 18000, note: "" },
+        { category: "Bitcoin", name: "BTC", bank: "Wallet", currency: "EUR", qty: 0.2, unitPrice: 60000, note: "Prix manuel" },
+        { category: "Assurance vie", name: "Assurance vie BNP", bank: "BNP", currency: "EUR", qty: 1, unitPrice: 45000, note: "" }
+      ]
+    };
+
+    let state = loadState();
+    let timer = null;
+    let autoSnapshotTimer = null;
+    const expandedStockSymbols = new Set();
+    const expandedBanks = new Set();
+    const sortState = {};
+
+    const els = {
+      pageEyebrow: document.getElementById("pageEyebrow"),
+      pageTitle: document.getElementById("pageTitle"),
+      pageSubtitle: document.getElementById("pageSubtitle"),
+      apiKey: document.getElementById("apiKey"),
+      eurUsd: document.getElementById("eurUsd"),
+      refreshInterval: document.getElementById("refreshInterval"),
+      lastUpdate: document.getElementById("lastUpdate"),
+      marketSettingsPanel: document.getElementById("marketSettingsPanel"),
+      marketSettingsToggle: document.getElementById("marketSettingsToggle"),
+      statusLine: document.getElementById("statusLine"),
+      dataStatus: document.getElementById("dataStatus"),
+      importFile: document.getElementById("importFile"),
+      executiveStrip: document.getElementById("executiveStrip"),
+      dashboardHeroStat: document.getElementById("dashboardHeroStat"),
+      dashboardCurrencyEur: document.getElementById("dashboardCurrencyEur"),
+      dashboardCurrencyUsd: document.getElementById("dashboardCurrencyUsd"),
+      totalWealth: document.getElementById("totalWealth"),
+      totalContext: document.getElementById("totalContext"),
+      heroLiquid: document.getElementById("heroLiquid"),
+      heroLongTerm: document.getElementById("heroLongTerm"),
+      heroBanks: document.getElementById("heroBanks"),
+      heroClasses: document.getElementById("heroClasses"),
+      executiveTotal: document.getElementById("executiveTotal"),
+      executiveTotalNote: document.getElementById("executiveTotalNote"),
+      executiveDailyPnl: document.getElementById("executiveDailyPnl"),
+      executiveDailyPnlNote: document.getElementById("executiveDailyPnlNote"),
+      executiveCash: document.getElementById("executiveCash"),
+      executiveCashNote: document.getElementById("executiveCashNote"),
+      executiveLastUpdate: document.getElementById("executiveLastUpdate"),
+      privacyToggle: document.getElementById("privacyToggle"),
+      dailyPnl: document.getElementById("dailyPnl"),
+      dailyPnlPct: document.getElementById("dailyPnlPct"),
+      stocksValue: document.getElementById("stocksValue"),
+      stocksPnl: document.getElementById("stocksPnl"),
+      bondsValue: document.getElementById("bondsValue"),
+      bondsAccrued: document.getElementById("bondsAccrued"),
+      cashValue: document.getElementById("cashValue"),
+      cashContext: document.getElementById("cashContext"),
+      peValue: document.getElementById("peValue"),
+      peContext: document.getElementById("peContext"),
+      realEstateValue: document.getElementById("realEstateValue"),
+      realEstateContext: document.getElementById("realEstateContext"),
+      diversValue: document.getElementById("diversValue"),
+      diversContext: document.getElementById("diversContext"),
+      allocationBars: document.getElementById("allocationBars"),
+      dashboardBankBody: document.getElementById("dashboardBankBody"),
+      fxUsdExposure: document.getElementById("fxUsdExposure"),
+      fxUsdWeight: document.getElementById("fxUsdWeight"),
+      fxEurExposure: document.getElementById("fxEurExposure"),
+      fxEurWeight: document.getElementById("fxEurWeight"),
+      fxDownImpact: document.getElementById("fxDownImpact"),
+      fxUpImpact: document.getElementById("fxUpImpact"),
+      intradayChart: document.getElementById("intradayChart"),
+      intradayRange24h: document.getElementById("intradayRange24h"),
+      intradayRange7d: document.getElementById("intradayRange7d"),
+      intradaySnapshotStatus: document.getElementById("intradaySnapshotStatus"),
+      intradaySnapshotNote: document.getElementById("intradaySnapshotNote"),
+      stocksBody: document.getElementById("stocksBody"),
+      stockExposureBody: document.getElementById("stockExposureBody"),
+      stocksPageValue: document.getElementById("stocksPageValue"),
+      stocksPageDayPnl: document.getElementById("stocksPageDayPnl"),
+      stocksPageDayPct: document.getElementById("stocksPageDayPct"),
+      stocksPageTotalPnl: document.getElementById("stocksPageTotalPnl"),
+      bondsBody: document.getElementById("bondsBody"),
+      bondsPageValue: document.getElementById("bondsPageValue"),
+      bondsPageAccrued: document.getElementById("bondsPageAccrued"),
+      bondsPagePnl: document.getElementById("bondsPagePnl"),
+      privateBody: document.getElementById("privateBody"),
+      privatePageValue: document.getElementById("privatePageValue"),
+      privatePageCommitment: document.getElementById("privatePageCommitment"),
+      privatePageCommitmentContext: document.getElementById("privatePageCommitmentContext"),
+      privatePageCalled: document.getElementById("privatePageCalled"),
+      privatePageCalledContext: document.getElementById("privatePageCalledContext"),
+      privatePageLargest: document.getElementById("privatePageLargest"),
+      privatePageLargestContext: document.getElementById("privatePageLargestContext"),
+      realEstateBody: document.getElementById("realEstateBody"),
+      realEstatePageNet: document.getElementById("realEstatePageNet"),
+      realEstatePageDebt: document.getElementById("realEstatePageDebt"),
+      realEstatePageDebtContext: document.getElementById("realEstatePageDebtContext"),
+      realEstatePageRent: document.getElementById("realEstatePageRent"),
+      realEstatePageRentContext: document.getElementById("realEstatePageRentContext"),
+      realEstatePageYield: document.getElementById("realEstatePageYield"),
+      realEstatePageYieldContext: document.getElementById("realEstatePageYieldContext"),
+      cashBody: document.getElementById("cashBody"),
+      cashPageTotal: document.getElementById("cashPageTotal"),
+      cashPageEur: document.getElementById("cashPageEur"),
+      cashPageEurContext: document.getElementById("cashPageEurContext"),
+      cashPageUsd: document.getElementById("cashPageUsd"),
+      cashPageUsdContext: document.getElementById("cashPageUsdContext"),
+      cashPageTopBank: document.getElementById("cashPageTopBank"),
+      cashPageTopBankContext: document.getElementById("cashPageTopBankContext"),
+      diversBody: document.getElementById("diversBody"),
+      diversPageValue: document.getElementById("diversPageValue"),
+      diversPageLargest: document.getElementById("diversPageLargest"),
+      diversPageLargestContext: document.getElementById("diversPageLargestContext"),
+      diversPageCategories: document.getElementById("diversPageCategories"),
+      diversPageCategoriesContext: document.getElementById("diversPageCategoriesContext"),
+      diversPageUsd: document.getElementById("diversPageUsd"),
+      diversPageUsdContext: document.getElementById("diversPageUsdContext"),
+      banksBody: document.getElementById("banksBody"),
+      bankChart: document.getElementById("bankChart"),
+      historyChart: document.getElementById("historyChart"),
+      historyBody: document.getElementById("historyBody"),
+      historyLastTotal: document.getElementById("historyLastTotal"),
+      historyLastDate: document.getElementById("historyLastDate"),
+      historyLastChange: document.getElementById("historyLastChange"),
+      historyLastChangePct: document.getElementById("historyLastChangePct"),
+      historyCount: document.getElementById("historyCount")
+    };
+
+    const pageMeta = {
+      dashboard: ["Consolidation", "Dashboard", "Global view of wealth, PnL and allocation."],
+      stocks: ["Listed portfolios", "Stocks", "Stock line details, EUR valuation and daily PnL."],
+      bonds: ["Fixed income", "Bond portfolio", "US Treasuries and OTC bonds with accrued coupon calculated daily."],
+      private: ["Illiquid", "Private equity", "Manual valuations, commitments and called capital."],
+      realestate: ["Property", "Real estate", "Properties, mortgage debt and rental income."],
+      cash: ["Liquidity", "Cash", "Balances by bank and currency, revalued in EUR."],
+      divers: ["Other assets", "Other", "Watches, bitcoin, life insurance and other manual investments."],
+      history: ["Time tracking", "History", "Regular snapshots of total wealth and main asset buckets."],
+      banks: ["Bank consolidation", "Wealth by bank", "Consolidated exposure by institution or custodian."]
+    };
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) return normalizeState(JSON.parse(saved));
+        const legacy = localStorage.getItem(legacyKey);
+        if (legacy) return normalizeState({ ...structuredClone(defaultState), ...JSON.parse(legacy) });
+      } catch {}
+      return normalizeState(structuredClone(defaultState));
+    }
+
+    function normalizeState(raw) {
+      const base = structuredClone(defaultState);
+      const next = { ...base, ...raw };
+      if (!raw.eurUsd && raw.usdEur) next.eurUsd = 1 / numberValue(raw.usdEur);
+      next.stocks = Array.isArray(raw.stocks) ? raw.stocks.map(row => ({ portfolio: "Actions US", ...row })) : base.stocks;
+      next.bonds = Array.isArray(raw.bonds) ? raw.bonds : base.bonds;
+      next.cash = Array.isArray(raw.cash) ? raw.cash.map(row => ({ bank: "Unallocated", ...row })) : base.cash;
+      next.privateAssets = Array.isArray(raw.privateAssets) ? raw.privateAssets.map(row => ({ bank: "Unallocated", commitmentEur: 0, calledEur: 0, valuationDate: "", ...row })) : base.privateAssets;
+      next.realEstate = Array.isArray(raw.realEstate) ? raw.realEstate.map(row => ({ bank: "Direct", currency: "EUR", grossValue: 0, originalLoan: row.originalLoan ?? row.debt ?? 0, annualRate: 0, termYears: 0, loanStartDate: "", monthlyRent: 0, monthlyCosts: 0, valuationDate: "", note: "", ...row })) : base.realEstate;
+      next.divers = Array.isArray(raw.divers) ? raw.divers : base.divers;
+      next.history = Array.isArray(raw.history) ? raw.history.map(normalizeSnapshot).filter(Boolean).sort((a, b) => a.date.localeCompare(b.date)) : base.history;
+      next.intradaySnapshots = Array.isArray(raw.intradaySnapshots) ? raw.intradaySnapshots.map(normalizeIntradaySnapshot).filter(Boolean).sort((a, b) => a.ts - b.ts) : base.intradaySnapshots;
+      next.marketSettingsCollapsed = raw.marketSettingsCollapsed !== false;
+      next.privacyMode = raw.privacyMode === true;
+      next.dashboardCurrency = raw.dashboardCurrency === "USD" ? "USD" : "EUR";
+      next.intradayRange = raw.intradayRange === "7d" ? "7d" : "24h";
+      return next;
+    }
+
+    function normalizeSnapshot(row) {
+      if (!row || !row.date) return null;
+      return {
+        date: String(row.date).slice(0, 10),
+        savedAt: row.savedAt || "",
+        total: numberValue(row.total),
+        stocksValue: numberValue(row.stocksValue ?? row.stocks),
+        bondsValue: numberValue(row.bondsValue ?? row.bonds),
+        cashValue: numberValue(row.cashValue ?? row.cash),
+        privateValue: numberValue(row.privateValue ?? row.privateEquity),
+        realEstateValue: numberValue(row.realEstateValue),
+        diversValue: numberValue(row.diversValue ?? row.divers),
+        stocksDayPnl: numberValue(row.stocksDayPnl),
+        eurUsd: numberValue(row.eurUsd)
+      };
+    }
+
+    function normalizeIntradaySnapshot(row) {
+      const ts = numberValue(row?.ts || Date.parse(row?.savedAt || ""));
+      if (!ts) return null;
+      return {
+        ts,
+        savedAt: row.savedAt || new Date(ts).toISOString(),
+        total: numberValue(row.total),
+        eurUsd: numberValue(row.eurUsd)
+      };
+    }
+
+    function saveState() {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    function numberValue(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function fx(currency) {
+      if (currency === "EUR") return 1;
+      if (currency === "USD") return state.eurUsd ? 1 / numberValue(state.eurUsd) : 0;
+      return 1;
+    }
+
+    function money(value, currency = "EUR", digits = 0) {
+      return new Intl.NumberFormat("en-US", { style: "currency", currency, minimumFractionDigits: digits, maximumFractionDigits: digits }).format(numberValue(value));
+    }
+
+    function dashboardCurrency() {
+      return state.dashboardCurrency === "USD" ? "USD" : "EUR";
+    }
+
+    function dashboardValue(valueEur) {
+      return dashboardCurrency() === "USD" ? numberValue(valueEur) * numberValue(state.eurUsd) : numberValue(valueEur);
+    }
+
+    function dashboardMoney(valueEur, digits = 0) {
+      return money(dashboardValue(valueEur), dashboardCurrency(), digits);
+    }
+
+    function pct(value) {
+      return `${numberValue(value).toFixed(2)} %`;
+    }
+
+    function signedClass(value) {
+      return numberValue(value) >= 0 ? "positive" : "negative";
+    }
+
+    function dateValue(value) {
+      const date = new Date(`${value}T00:00:00`);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function daysBetween(start, end) {
+      return Math.max(0, Math.round((end - start) / 86400000));
+    }
+
+    function daysBetween30_360(start, end) {
+      const y1 = start.getFullYear();
+      const y2 = end.getFullYear();
+      const m1 = start.getMonth() + 1;
+      const m2 = end.getMonth() + 1;
+      const d1 = Math.min(start.getDate(), 30);
+      const d2 = Math.min(end.getDate(), 30);
+      return Math.max(0, (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1));
+    }
+
+    function stockValueEur(row) {
+      return numberValue(row.qty) * numberValue(row.price) * fx(row.currency);
+    }
+
+    function stockDayPnlEur(row) {
+      return numberValue(row.qty) * (numberValue(row.price) - numberValue(row.previousClose)) * fx(row.currency);
+    }
+
+    function stockTotalPnlEur(row) {
+      return numberValue(row.qty) * (numberValue(row.price) - numberValue(row.cost)) * fx(row.currency);
+    }
+
+    function stockExposures() {
+      const map = new Map();
+      state.stocks.forEach(row => {
+        const symbol = (row.symbol || "").trim().toUpperCase();
+        if (!symbol) return;
+        if (!map.has(symbol)) {
+          map.set(symbol, {
+            symbol,
+            name: row.name || "",
+            qty: 0,
+            priceQty: 0,
+            previousCloseQty: 0,
+            costQty: 0,
+            valueEur: 0,
+            dayPnlEur: 0,
+            totalPnlEur: 0,
+            banks: new Set(),
+            currencies: new Set(),
+            lines: []
+          });
+        }
+        const exposure = map.get(symbol);
+        const qty = numberValue(row.qty);
+        exposure.name = exposure.name || row.name || "";
+        exposure.qty += qty;
+        exposure.priceQty += qty * numberValue(row.price);
+        exposure.previousCloseQty += qty * numberValue(row.previousClose);
+        exposure.costQty += qty * numberValue(row.cost);
+        exposure.valueEur += stockValueEur(row);
+        exposure.dayPnlEur += stockDayPnlEur(row);
+        exposure.totalPnlEur += stockTotalPnlEur(row);
+        if (row.bank) exposure.banks.add(row.bank);
+        if (row.currency) exposure.currencies.add(row.currency);
+        exposure.lines.push(row);
+      });
+      return [...map.values()].map(row => ({
+        ...row,
+        avgPrice: row.qty ? row.priceQty / row.qty : 0,
+        avgPreviousClose: row.qty ? row.previousCloseQty / row.qty : 0,
+        weightedCost: row.qty ? row.costQty / row.qty : 0,
+        dayMovePct: row.previousCloseQty ? (row.priceQty - row.previousCloseQty) / row.previousCloseQty * 100 : 0,
+        bankCount: row.banks.size,
+        displayCurrency: row.currencies.size === 1 ? [...row.currencies][0] : "EUR"
+      })).sort((a, b) => b.valueEur - a.valueEur);
+    }
+
+    function bondAccruedCurrency(row) {
+      const last = dateValue(row.lastCoupon);
+      const next = dateValue(row.nextCoupon);
+      const today = new Date();
+      if (!last || !next || today <= last) return 0;
+      const end = today < next ? today : next;
+      const elapsed = daysBetween(last, end);
+      const annualCoupon = numberValue(row.nominal) * numberValue(row.couponRate) / 100;
+      if (row.dayCount === "30/360") return annualCoupon * daysBetween30_360(last, end) / 360;
+      if (row.dayCount === "ACT/360") return annualCoupon * elapsed / 360;
+      if (row.dayCount === "ACT/365") return annualCoupon * elapsed / 365;
+      const periodDays = Math.max(1, daysBetween(last, next));
+      return annualCoupon / Math.max(1, numberValue(row.frequency)) * elapsed / periodDays;
+    }
+
+    function bondAccruedEur(row) {
+      return bondAccruedCurrency(row) * fx(row.currency);
+    }
+
+    function bondCleanValueCurrency(row) {
+      return numberValue(row.nominal) * numberValue(row.cleanPrice) / 100;
+    }
+
+    function bondValueEur(row) {
+      return (bondCleanValueCurrency(row) + bondAccruedCurrency(row)) * fx(row.currency);
+    }
+
+    function bondPnlEur(row) {
+      const cost = numberValue(row.nominal) * numberValue(row.costPrice) / 100;
+      return (bondCleanValueCurrency(row) + bondAccruedCurrency(row) - cost) * fx(row.currency);
+    }
+
+    function cashValueEur(row) {
+      return numberValue(row.amount) * fx(row.currency);
+    }
+
+    function cashSummary() {
+      const byCurrency = new Map();
+      const byBank = new Map();
+      let totalEur = 0;
+      let positiveAccounts = 0;
+      let negativeAccounts = 0;
+      state.cash.forEach(row => {
+        const amount = numberValue(row.amount);
+        const currency = row.currency || "EUR";
+        const bank = row.bank || "Unallocated";
+        const valueEur = cashValueEur(row);
+        totalEur += valueEur;
+        byCurrency.set(currency, (byCurrency.get(currency) || 0) + amount);
+        byBank.set(bank, (byBank.get(bank) || 0) + valueEur);
+        if (amount >= 0) positiveAccounts += 1;
+        else negativeAccounts += 1;
+      });
+      const banks = [...byBank.entries()].map(([bank, value]) => ({ bank, value })).sort((a, b) => b.value - a.value);
+      return { totalEur, byCurrency, banks, topBank: banks[0] || null, positiveAccounts, negativeAccounts };
+    }
+
+    function privateValueEur(row) {
+      return numberValue(row.valueEur);
+    }
+
+    function realEstateGrossEur(row) {
+      return numberValue(row.grossValue) * fx(row.currency);
+    }
+
+    function loanMonthlyPaymentCurrency(row) {
+      const principal = numberValue(row.originalLoan ?? row.debt);
+      const months = Math.max(0, Math.round(numberValue(row.termYears) * 12));
+      if (!principal || !months) return 0;
+      const monthlyRate = numberValue(row.annualRate) / 100 / 12;
+      if (!monthlyRate) return principal / months;
+      return principal * monthlyRate / (1 - Math.pow(1 + monthlyRate, -months));
+    }
+
+    function loanElapsedPayments(row) {
+      const start = dateValue(row.loanStartDate);
+      if (!start) return 0;
+      const today = new Date();
+      let months = (today.getFullYear() - start.getFullYear()) * 12 + today.getMonth() - start.getMonth();
+      if (today.getDate() < start.getDate()) months -= 1;
+      return Math.max(0, Math.min(Math.round(numberValue(row.termYears) * 12), months));
+    }
+
+    function remainingLoanCurrency(row) {
+      const principal = numberValue(row.originalLoan ?? row.debt);
+      const months = Math.max(0, Math.round(numberValue(row.termYears) * 12));
+      if (!principal) return 0;
+      if (!months || !row.loanStartDate) return principal;
+      const paid = loanElapsedPayments(row);
+      if (paid >= months) return 0;
+      const monthlyRate = numberValue(row.annualRate) / 100 / 12;
+      const payment = loanMonthlyPaymentCurrency(row);
+      if (!monthlyRate) return Math.max(0, principal - payment * paid);
+      return Math.max(0, principal * Math.pow(1 + monthlyRate, paid) - payment * (Math.pow(1 + monthlyRate, paid) - 1) / monthlyRate);
+    }
+
+    function realEstateDebtEur(row) {
+      return remainingLoanCurrency(row) * fx(row.currency);
+    }
+
+    function realEstateNetEur(row) {
+      return realEstateGrossEur(row) - realEstateDebtEur(row);
+    }
+
+    function realEstateMonthlyNetRentEur(row) {
+      return (numberValue(row.monthlyRent) - numberValue(row.monthlyCosts)) * fx(row.currency);
+    }
+
+    function realEstateMonthlyPaymentEur(row) {
+      return loanMonthlyPaymentCurrency(row) * fx(row.currency);
+    }
+
+    function realEstateMonthlyCashflowEur(row) {
+      return realEstateMonthlyNetRentEur(row) - realEstateMonthlyPaymentEur(row);
+    }
+
+    function diversValueEur(row) {
+      return numberValue(row.qty) * numberValue(row.unitPrice) * fx(row.currency);
+    }
+
+    function computeTotals() {
+      const stocksValue = state.stocks.reduce((sum, row) => sum + stockValueEur(row), 0);
+      const stocksDayPnl = state.stocks.reduce((sum, row) => sum + stockDayPnlEur(row), 0);
+      const stocksPrevious = stocksValue - stocksDayPnl;
+      const stocksTotalPnl = state.stocks.reduce((sum, row) => sum + stockTotalPnlEur(row), 0);
+      const bondsValue = state.bonds.reduce((sum, row) => sum + bondValueEur(row), 0);
+      const bondsAccrued = state.bonds.reduce((sum, row) => sum + bondAccruedEur(row), 0);
+      const bondsPnl = state.bonds.reduce((sum, row) => sum + bondPnlEur(row), 0);
+      const cashValue = state.cash.reduce((sum, row) => sum + cashValueEur(row), 0);
+      const privateValue = state.privateAssets.reduce((sum, row) => sum + privateValueEur(row), 0);
+      const realEstateValue = state.realEstate.reduce((sum, row) => sum + realEstateNetEur(row), 0);
+      const diversValue = state.divers.reduce((sum, row) => sum + diversValueEur(row), 0);
+      const total = stocksValue + bondsValue + cashValue + privateValue + realEstateValue + diversValue;
+      return { stocksValue, stocksDayPnl, stocksPrevious, stocksTotalPnl, bondsValue, bondsAccrued, bondsPnl, cashValue, privateValue, realEstateValue, diversValue, total };
+    }
+
+    function computeFxRisk() {
+      const eurUsd = Math.max(0.0001, numberValue(state.eurUsd));
+      let usdNative = 0;
+      let eurValue = 0;
+      let otherValue = 0;
+
+      const addCurrencyValue = (currency, nativeValue) => {
+        const value = numberValue(nativeValue);
+        if ((currency || "EUR") === "USD") usdNative += value;
+        else if ((currency || "EUR") === "EUR") eurValue += value;
+        else otherValue += value * fx(currency);
+      };
+
+      state.stocks.forEach(row => addCurrencyValue(row.currency, numberValue(row.qty) * numberValue(row.price)));
+      state.bonds.forEach(row => addCurrencyValue(row.currency, bondCleanValueCurrency(row) + bondAccruedCurrency(row)));
+      state.cash.forEach(row => addCurrencyValue(row.currency, row.amount));
+      state.privateAssets.forEach(row => { eurValue += privateValueEur(row); });
+      state.realEstate.forEach(row => addCurrencyValue(row.currency, numberValue(row.grossValue) - remainingLoanCurrency(row)));
+      state.divers.forEach(row => addCurrencyValue(row.currency, numberValue(row.qty) * numberValue(row.unitPrice)));
+
+      const usdValue = usdNative / eurUsd;
+      const total = usdValue + eurValue + otherValue;
+      const downRate = eurUsd * 0.95;
+      const upRate = eurUsd * 1.05;
+      const downTotal = usdNative / downRate + eurValue + otherValue;
+      const upTotal = usdNative / upRate + eurValue + otherValue;
+      return {
+        eurUsd,
+        usdValue,
+        eurValue,
+        otherValue,
+        total,
+        downImpact: downTotal - total,
+        upImpact: upTotal - total
+      };
+    }
+
+    function totalsByBank() {
+      const rows = new Map();
+      const ensure = bank => {
+        const key = bank || "Unallocated";
+        if (!rows.has(key)) rows.set(key, { bank: key, stocks: 0, bonds: 0, cash: 0, privateValue: 0, realEstate: 0, divers: 0, pnl: 0, lines: [] });
+        return rows.get(key);
+      };
+      state.stocks.forEach(row => {
+        const bucket = ensure(row.bank);
+        const value = stockValueEur(row);
+        const pnl = stockTotalPnlEur(row);
+        bucket.stocks += value;
+        bucket.pnl += pnl;
+        bucket.lines.push({ type: "Stocks", name: row.symbol || row.name || "Stock", value, pnl });
+      });
+      state.bonds.forEach(row => {
+        const bucket = ensure(row.bank);
+        const value = bondValueEur(row);
+        const pnl = bondPnlEur(row);
+        bucket.bonds += value;
+        bucket.pnl += pnl;
+        bucket.lines.push({ type: "Bonds", name: row.name || row.issuer || "Bond", value, pnl });
+      });
+      state.cash.forEach(row => {
+        const bucket = ensure(row.bank);
+        const value = cashValueEur(row);
+        bucket.cash += value;
+        bucket.lines.push({ type: "Cash", name: row.name || row.currency || "Cash", value });
+      });
+      state.privateAssets.forEach(row => {
+        const bucket = ensure(row.bank);
+        const value = privateValueEur(row);
+        bucket.privateValue += value;
+        bucket.lines.push({ type: "Private equity", name: row.name || "Private equity", value });
+      });
+      state.realEstate.forEach(row => {
+        const bucket = ensure(row.bank);
+        const value = realEstateNetEur(row);
+        bucket.realEstate += value;
+        bucket.lines.push({ type: "Real estate", name: row.name || row.city || "Property", value });
+      });
+      state.divers.forEach(row => {
+        const bucket = ensure(row.bank);
+        const value = diversValueEur(row);
+        bucket.divers += value;
+        bucket.lines.push({ type: "Other", name: row.name || row.category || "Other", value });
+      });
+      return [...rows.values()].map(row => ({ ...row, total: row.stocks + row.bonds + row.cash + row.privateValue + row.realEstate + row.divers })).sort((a, b) => b.total - a.total);
+    }
+
+    function updateField(collection, index, key, value) {
+      const numeric = ["qty", "price", "previousClose", "cost", "amount", "valueEur", "commitmentEur", "calledEur", "nominal", "cleanPrice", "costPrice", "couponRate", "frequency", "unitPrice", "grossValue", "debt", "originalLoan", "annualRate", "termYears", "monthlyRent", "monthlyCosts"];
+      state[collection][index][key] = numeric.includes(key) ? numberValue(value) : value;
+      saveState();
+      if (collection === "stocks") {
+        renderTotals();
+        renderStockExposures();
+        renderBanks();
+        return;
+      }
+      render();
+    }
+
+    function renderInput(value, oninput, attrs = "") {
+      return `<input ${attrs} value="${escapeHtml(value ?? "")}" onchange="${oninput}">`;
+    }
+
+    function renderLiveInput(value, oninput, attrs = "") {
+      return `<input ${attrs} value="${escapeHtml(value ?? "")}" oninput="${oninput}" onchange="${oninput}">`;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+    }
+
+    const sortableTables = {
+      dashboardBankBody: { keys: ["bank", "total", "total"], types: ["text", "number", "number"], render: () => renderTotals() },
+      stockExposureBody: { keys: [null, "symbol", "name", "qty", "avgPrice", "avgPreviousClose", "dayMovePct", "weightedCost", "valueEur", "dayPnlEur", "totalPnlEur", "bankCount"], types: [null, "text", "text", "number", "number", "number", "number", "number", "number", "number", "number", "number"], render: renderStockExposures },
+      stocksBody: { collection: "stocks", keys: ["symbol", "name", "bank", "qty", "cost", "currency", "valueEur", "dayPnlEur", "totalPnlEur", null], types: ["text", "text", "text", "number", "number", "text", "number", "number", "number", null], render: renderStocks },
+      bondsBody: { collection: "bonds", keys: ["name", "type", "bank", "issuer", "currency", "nominal", "cleanPrice", "costPrice", "couponRate", "frequency", "lastCoupon", "nextCoupon", "maturity", "dayCount", "accruedEur", "valueEur", "pnlEur", null], types: ["text", "text", "text", "text", "text", "number", "number", "number", "number", "number", "date", "date", "date", "text", "number", "number", "number", null], render: renderBonds },
+      privateBody: { collection: "privateAssets", keys: ["name", "bank", "valueEur", "commitmentEur", "calledEur", "valuationDate", "note", null], types: ["text", "text", "number", "number", "number", "date", "text", null], render: renderPrivateAssets },
+      realEstateBody: { collection: "realEstate", keys: ["name", "city", "bank", "currency", "grossValue", "originalLoan", "annualRate", "termYears", "loanStartDate", "monthlyPayment", "debtLeft", "netValueEur", "monthlyRent", "monthlyCosts", "cashflow", "netYield", "valuationDate", "note", null], types: ["text", "text", "text", "text", "number", "number", "number", "number", "date", "number", "number", "number", "number", "number", "number", "number", "date", "text", null], render: renderRealEstate },
+      cashBody: { collection: "cash", keys: ["name", "bank", "currency", "amount", "valueEur", null], types: ["text", "text", "text", "number", "number", null], render: renderCash },
+      diversBody: { collection: "divers", keys: ["category", "name", "bank", "currency", "qty", "unitPrice", "valueEur", "note", null], types: ["text", "text", "text", "text", "number", "number", "number", "text", null], render: renderDivers },
+      historyBody: { keys: ["date", "total", "change", "stocksValue", "bondsValue", "cashValue", "privateValue", "realEstateValue", "diversValue", null], types: ["date", "number", "number", "number", "number", "number", "number", "number", "number", null], render: renderHistory },
+      banksBody: { keys: [null, "bank", "stocks", "bonds", "cash", "privateValue", "realEstate", "divers", "pnl", "total", "total"], types: [null, "text", "number", "number", "number", "number", "number", "number", "number", "number", "number"], render: renderBanks }
+    };
+
+    function configureSortableHeaders() {
+      Object.entries(sortableTables).forEach(([tbodyId, config]) => {
+        const tbody = document.getElementById(tbodyId);
+        const table = tbody?.closest("table");
+        if (!table) return;
+        table.querySelectorAll("thead th").forEach((th, index) => {
+          const key = config.keys[index];
+          th.classList.remove("sortable", "sort-asc", "sort-desc");
+          th.removeAttribute("data-sort-key");
+          th.removeAttribute("data-sort-table");
+          th.removeAttribute("data-sort-type");
+          if (!key) return;
+          th.classList.add("sortable");
+          th.dataset.sortTable = tbodyId;
+          th.dataset.sortKey = key;
+          th.dataset.sortType = config.types[index] || "text";
+          const active = sortState[tbodyId];
+          if (active?.key === key) th.classList.add(active.dir === "asc" ? "sort-asc" : "sort-desc");
+        });
+      });
+    }
+
+    function sortableValue(row, key, index, rows) {
+      if (!row) return "";
+      if (key === "valueEur") {
+        if (row.symbol !== undefined) return stockValueEur(row);
+        if (row.nominal !== undefined) return bondValueEur(row);
+        if (row.amount !== undefined) return cashValueEur(row);
+        if (row.qty !== undefined && row.unitPrice !== undefined) return diversValueEur(row);
+      }
+      if (key === "netValueEur") return realEstateNetEur(row);
+      if (key === "monthlyPayment") return realEstateMonthlyPaymentEur(row);
+      if (key === "debtLeft") return realEstateDebtEur(row);
+      if (key === "netRentEur") return realEstateMonthlyNetRentEur(row);
+      if (key === "cashflow") return realEstateMonthlyCashflowEur(row);
+      if (key === "netYield") return realEstateGrossEur(row) ? realEstateMonthlyNetRentEur(row) * 12 / realEstateGrossEur(row) * 100 : 0;
+      if (key === "dayPnlEur") return row.dayPnlEur ?? stockDayPnlEur(row);
+      if (key === "totalPnlEur") return row.totalPnlEur ?? stockTotalPnlEur(row);
+      if (key === "accruedEur") return bondAccruedEur(row);
+      if (key === "pnlEur") return bondPnlEur(row);
+      if (key === "change") return index > 0 ? numberValue(row.total) - numberValue(rows[index - 1]?.total) : 0;
+      return row[key];
+    }
+
+    function compareSortable(a, b, key, type, dir, aIndex, bIndex, rows) {
+      let av = sortableValue(a, key, aIndex, rows);
+      let bv = sortableValue(b, key, bIndex, rows);
+      let result = 0;
+      if (type === "number") {
+        result = numberValue(av) - numberValue(bv);
+      } else if (type === "date") {
+        result = String(av || "").localeCompare(String(bv || ""));
+      } else {
+        result = String(av || "").localeCompare(String(bv || ""), undefined, { sensitivity: "base", numeric: true });
+      }
+      return dir === "asc" ? result : -result;
+    }
+
+    function sortRows(rows, tableId) {
+      const active = sortState[tableId];
+      if (!active) return rows;
+      return [...rows].map((row, index) => ({ row, index })).sort((a, b) => {
+        const result = compareSortable(a.row, b.row, active.key, active.type, active.dir, a.index, b.index, rows);
+        return result || a.index - b.index;
+      }).map(item => item.row);
+    }
+
+    function handleSortClick(th) {
+      const tableId = th.dataset.sortTable;
+      const config = sortableTables[tableId];
+      if (!config) return;
+      const key = th.dataset.sortKey;
+      const type = th.dataset.sortType || "text";
+      const current = sortState[tableId];
+      const defaultDir = type === "number" ? "desc" : "asc";
+      sortState[tableId] = { key, type, dir: current?.key === key && current.dir === defaultDir ? (defaultDir === "asc" ? "desc" : "asc") : defaultDir };
+      config.render();
+      configureSortableHeaders();
+    }
+
+    function setPage(page) {
+      state.currentPage = page;
+      saveState();
+      document.querySelectorAll(".page").forEach(el => el.classList.toggle("active", el.id === `page-${page}`));
+      document.querySelectorAll("button.nav").forEach(el => el.classList.toggle("active", el.dataset.pageTarget === page));
+      const meta = pageMeta[page] || pageMeta.dashboard;
+      els.pageEyebrow.textContent = meta[0];
+      els.pageTitle.textContent = meta[1];
+      els.pageSubtitle.textContent = meta[2];
+      els.executiveStrip.classList.toggle("hidden", page === "dashboard");
+    }
+
+    function renderMarketSettingsPanel() {
+      const collapsed = state.marketSettingsCollapsed !== false;
+      els.marketSettingsPanel.classList.toggle("collapsed", collapsed);
+      els.marketSettingsToggle.textContent = collapsed ? "Show settings v" : "Hide settings ^";
+      els.marketSettingsToggle.setAttribute("aria-expanded", String(!collapsed));
+    }
+
+    function toggleMarketSettings() {
+      state.marketSettingsCollapsed = state.marketSettingsCollapsed === false;
+      saveState();
+      renderMarketSettingsPanel();
+    }
+
+    function renderPrivacyMode() {
+      document.body.classList.toggle("privacy-mode", state.privacyMode === true);
+      els.privacyToggle.textContent = state.privacyMode ? "Show data" : "Hide data";
+      els.privacyToggle.classList.toggle("privacy-on", state.privacyMode === true);
+      els.privacyToggle.setAttribute("aria-pressed", String(state.privacyMode === true));
+    }
+
+    function renderDashboardCurrencyToggle() {
+      const currency = dashboardCurrency();
+      els.dashboardHeroStat.dataset.currency = currency;
+      els.dashboardCurrencyEur.classList.toggle("active", currency === "EUR");
+      els.dashboardCurrencyUsd.classList.toggle("active", currency === "USD");
+    }
+
+    function setDashboardCurrency(currency) {
+      state.dashboardCurrency = currency === "USD" ? "USD" : "EUR";
+      saveState();
+      renderTotals();
+    }
+
+    function togglePrivacyMode() {
+      state.privacyMode = state.privacyMode !== true;
+      saveState();
+      renderPrivacyMode();
+    }
+
+    function render() {
+      els.apiKey.value = state.apiKey || "";
+      els.eurUsd.value = state.eurUsd;
+      els.refreshInterval.value = String(state.refreshInterval);
+      els.lastUpdate.value = state.lastUpdate || "Never";
+      renderMarketSettingsPanel();
+      renderPrivacyMode();
+      renderDashboardCurrencyToggle();
+      renderDataStatus();
+      renderTotals();
+      renderStocks();
+      renderBonds();
+      renderCash();
+      renderPrivateAssets();
+      renderRealEstate();
+      renderDivers();
+      renderHistory();
+      renderBanks();
+      setPage(state.currentPage || "dashboard");
+      scheduleRefresh();
+      scheduleIntradaySnapshots();
+      configureSortableHeaders();
+    }
+
+    function renderDataStatus() {
+      const saved = state.dataSavedAt ? `Last data save: ${state.dataSavedAt}.` : "No data save recorded in this session.";
+      const loaded = state.dataLoadedAt ? ` Last load: ${state.dataLoadedAt}.` : "";
+      els.dataStatus.textContent = `${saved}${loaded} Recommended file: patrimoine-data.json saved privately in Files, iCloud Drive, OneDrive or Downloads.`;
+    }
+
+    function renderTotals() {
+      const t = computeTotals();
+      const dayPct = t.stocksPrevious ? t.stocksDayPnl / t.stocksPrevious * 100 : 0;
+      const liquidValue = t.stocksValue + t.bondsValue + t.cashValue;
+      const longTermValue = t.privateValue + t.realEstateValue + t.diversValue;
+      const activeClasses = [t.stocksValue, t.bondsValue, t.cashValue, t.privateValue, t.realEstateValue, t.diversValue].filter(value => value > 0).length;
+      const bankCount = new Set([
+        ...state.stocks.map(row => row.bank),
+        ...state.bonds.map(row => row.bank),
+        ...state.cash.map(row => row.bank),
+        ...state.privateAssets.map(row => row.bank),
+        ...state.realEstate.map(row => row.bank),
+        ...state.divers.map(row => row.bank)
+      ].filter(Boolean)).size;
+      renderDashboardCurrencyToggle();
+      els.totalWealth.textContent = dashboardMoney(t.total);
+      els.totalContext.textContent = dashboardCurrency() === "USD"
+        ? `Base: ${money(t.total)} | EUR/USD ${numberValue(state.eurUsd).toFixed(4)}`
+        : `${money(t.stocksValue)} stocks | ${money(t.bondsValue)} bonds | ${money(t.cashValue)} cash`;
+      els.heroLiquid.textContent = `${dashboardMoney(liquidValue)} | ${pct(t.total ? liquidValue / t.total * 100 : 0)}`;
+      els.heroLongTerm.textContent = `${dashboardMoney(longTermValue)} | ${pct(t.total ? longTermValue / t.total * 100 : 0)}`;
+      els.heroBanks.textContent = `${bankCount || 0} institution${bankCount > 1 ? "s" : ""}`;
+      els.heroClasses.textContent = `${activeClasses || 0} active`;
+      els.executiveTotal.textContent = money(t.total);
+      els.executiveTotalNote.textContent = `${money(t.privateValue)} private | ${money(t.bondsValue)} bonds`;
+      els.executiveDailyPnl.textContent = money(t.stocksDayPnl, "EUR", 2);
+      els.executiveDailyPnl.className = `executive-value ${signedClass(t.stocksDayPnl)}`;
+      els.executiveDailyPnlNote.textContent = `${pct(dayPct)} on listed stocks`;
+      els.executiveCash.textContent = money(t.cashValue);
+      els.executiveCashNote.textContent = `${state.cash.length} cash account(s), FX EUR/USD ${numberValue(state.eurUsd).toFixed(4)}`;
+      els.executiveLastUpdate.textContent = state.lastUpdate || "Never";
+      els.dailyPnl.textContent = dashboardMoney(t.stocksDayPnl, 2);
+      els.dailyPnl.className = signedClass(t.stocksDayPnl);
+      els.dailyPnlPct.textContent = `${pct(dayPct)} on listed stocks`;
+      els.stocksValue.textContent = dashboardMoney(t.stocksValue);
+      els.stocksPnl.textContent = `Total PnL: ${dashboardMoney(t.stocksTotalPnl, 2)}`;
+      els.stocksPnl.className = signedClass(t.stocksTotalPnl);
+      els.bondsValue.textContent = dashboardMoney(t.bondsValue);
+      els.bondsAccrued.textContent = `Accrued coupon: ${dashboardMoney(t.bondsAccrued, 2)}`;
+      els.cashValue.textContent = dashboardMoney(t.cashValue);
+      els.cashContext.textContent = `${state.cash.length} account(s)`;
+      els.peValue.textContent = dashboardMoney(t.privateValue);
+      els.peContext.textContent = `${state.privateAssets.length} line(s)`;
+      els.realEstateValue.textContent = dashboardMoney(t.realEstateValue);
+      els.realEstateContext.textContent = `${state.realEstate.length} property(ies)`;
+      els.diversValue.textContent = dashboardMoney(t.diversValue);
+      els.diversContext.textContent = `${state.divers.length} investment(s)`;
+      els.stocksPageValue.textContent = money(t.stocksValue);
+      els.stocksPageDayPnl.textContent = money(t.stocksDayPnl, "EUR", 2);
+      els.stocksPageDayPnl.className = signedClass(t.stocksDayPnl);
+      els.stocksPageDayPct.textContent = pct(dayPct);
+      els.stocksPageTotalPnl.textContent = money(t.stocksTotalPnl, "EUR", 2);
+      els.stocksPageTotalPnl.className = signedClass(t.stocksTotalPnl);
+      els.bondsPageValue.textContent = money(t.bondsValue);
+      els.bondsPageAccrued.textContent = money(t.bondsAccrued, "EUR", 2);
+      els.bondsPagePnl.textContent = money(t.bondsPnl, "EUR", 2);
+      els.bondsPagePnl.className = signedClass(t.bondsPnl);
+      renderAllocation(t);
+      renderDashboardBanks(t.total);
+      renderFxRisk();
+      renderIntradaySnapshots();
+    }
+
+    function renderFxRisk() {
+      const risk = computeFxRisk();
+      els.fxUsdExposure.textContent = money(risk.usdValue);
+      els.fxUsdWeight.textContent = `${pct(risk.total ? risk.usdValue / risk.total * 100 : 0)} of total wealth`;
+      els.fxEurExposure.textContent = money(risk.eurValue);
+      els.fxEurWeight.textContent = `${pct(risk.total ? risk.eurValue / risk.total * 100 : 0)} of total wealth`;
+      els.fxDownImpact.textContent = money(risk.downImpact, "EUR", 0);
+      els.fxDownImpact.className = signedClass(risk.downImpact);
+      els.fxUpImpact.textContent = money(risk.upImpact, "EUR", 0);
+      els.fxUpImpact.className = signedClass(risk.upImpact);
+    }
+
+    function canvasSetup(canvas, fallbackHeight) {
+      if (!canvas) return null;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.max(320, Math.floor(rect.width || canvas.clientWidth || 900));
+      const height = Math.max(180, Math.floor(rect.height || fallbackHeight));
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+      const styles = getComputedStyle(document.documentElement);
+      return {
+        ctx,
+        width,
+        height,
+        text: styles.getPropertyValue("--muted").trim() || "#6d716d",
+        ink: styles.getPropertyValue("--ink").trim() || "#202523",
+        line: styles.getPropertyValue("--line").trim() || "#ded8cc",
+        soft: styles.getPropertyValue("--line-soft").trim() || "#ece7dc",
+        accent: styles.getPropertyValue("--accent").trim() || "#9c7a2f",
+        good: styles.getPropertyValue("--accent-2").trim() || "#2f766d",
+        bad: styles.getPropertyValue("--bad").trim() || "#b7443f"
+      };
+    }
+
+    function drawBankChart(rows, total) {
+      const setup = canvasSetup(els.bankChart, 260);
+      if (!setup) return;
+      const { ctx, width, height, text, ink, line, accent, good } = setup;
+      const displayRows = rows.filter(row => row.total > 0).slice(0, 8);
+      const pad = { top: 24, right: 120, bottom: 24, left: 150 };
+      ctx.font = "12px Aptos, Segoe UI, sans-serif";
+      ctx.fillStyle = text;
+      if (!displayRows.length) {
+        ctx.textAlign = "center";
+        ctx.fillText("No bank exposure to display.", width / 2, height / 2);
+        return;
+      }
+      const max = Math.max(...displayRows.map(row => row.total), 1);
+      const barGap = 12;
+      const barHeight = Math.max(18, (height - pad.top - pad.bottom - barGap * (displayRows.length - 1)) / displayRows.length);
+      ctx.strokeStyle = line;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, pad.top - 4);
+      ctx.lineTo(pad.left, height - pad.bottom + 4);
+      ctx.stroke();
+      displayRows.forEach((row, index) => {
+        const y = pad.top + index * (barHeight + barGap);
+        const barWidth = row.total / max * (width - pad.left - pad.right);
+        ctx.fillStyle = colorMixIndex(index, accent, good);
+        ctx.fillRect(pad.left, y, Math.max(2, barWidth), barHeight);
+        ctx.fillStyle = ink;
+        ctx.textAlign = "right";
+        ctx.fillText(row.bank, pad.left - 12, y + barHeight / 2 + 4);
+        ctx.textAlign = "left";
+        const valueLabel = `${money(row.total, "EUR", 0)} | ${pct(total ? row.total / total * 100 : 0)}`;
+        const labelX = Math.min(width - pad.right + 8, pad.left + barWidth + 10);
+        ctx.fillText(valueLabel, labelX, y + barHeight / 2 + 4);
+      });
+    }
+
+    function colorMixIndex(index, first, second) {
+      return index % 2 === 0 ? first : second;
+    }
+
+    function recordIntradaySnapshot(force = false) {
+      const now = Date.now();
+      const last = state.intradaySnapshots?.at(-1);
+      if (!force && last && now - numberValue(last.ts) < 4.5 * 60 * 1000) return;
+      const t = computeTotals();
+      state.intradaySnapshots = Array.isArray(state.intradaySnapshots) ? state.intradaySnapshots : [];
+      state.intradaySnapshots.push({
+        ts: now,
+        savedAt: new Date(now).toISOString(),
+        total: t.total,
+        eurUsd: numberValue(state.eurUsd)
+      });
+      const keepAfter = now - 7 * 24 * 60 * 60 * 1000;
+      state.intradaySnapshots = state.intradaySnapshots.filter(row => numberValue(row.ts) >= keepAfter).slice(-2016);
+      saveState();
+      renderIntradaySnapshots();
+    }
+
+    function scheduleIntradaySnapshots() {
+      if (autoSnapshotTimer) window.clearInterval(autoSnapshotTimer);
+      recordIntradaySnapshot(false);
+      autoSnapshotTimer = window.setInterval(() => recordIntradaySnapshot(false), 5 * 60 * 1000);
+    }
+
+    function renderIntradaySnapshots() {
+      const rows = (state.intradaySnapshots || []).filter(Boolean);
+      const last = rows.at(-1);
+      const previous = rows.at(-2);
+      const change = last && previous ? last.total - previous.total : 0;
+      const lastText = last ? new Date(last.ts).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) : "-";
+      els.intradayRange24h.classList.toggle("active", state.intradayRange !== "7d");
+      els.intradayRange7d.classList.toggle("active", state.intradayRange === "7d");
+      els.intradaySnapshotStatus.textContent = last ? `Last auto snapshot ${lastText}. Next one in up to 5 min.` : "Auto snapshot every 5 min while this page is open.";
+      els.intradaySnapshotNote.textContent = rows.length
+        ? `${rows.length} intraday point(s) saved. Showing ${state.intradayRange === "7d" ? "7 days" : "24 hours"}. Latest total: ${money(last.total, "EUR", 2)}${previous ? ` | Change: ${money(change, "EUR", 2)}` : ""}`
+        : "Waiting for the first automatic snapshot.";
+      drawIntradayChart(rows);
+    }
+
+    function setIntradayRange(range) {
+      state.intradayRange = range === "7d" ? "7d" : "24h";
+      saveState();
+      renderIntradaySnapshots();
+    }
+
+    function drawIntradayChart(rows) {
+      const setup = canvasSetup(els.intradayChart, 260);
+      if (!setup) return;
+      const { ctx, width, height, text, line, accent, good } = setup;
+      const now = Date.now();
+      const windowMs = state.intradayRange === "7d" ? 7 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+      const displayRows = rows.filter(row => numberValue(row.ts) >= now - windowMs);
+      const pad = { top: 24, right: 22, bottom: 38, left: 76 };
+      ctx.strokeStyle = line;
+      ctx.lineWidth = 1;
+      ctx.font = "12px Aptos, Segoe UI, sans-serif";
+      ctx.fillStyle = text;
+      if (displayRows.length < 2) {
+        ctx.textAlign = "center";
+        ctx.fillText(`The ${state.intradayRange === "7d" ? "7d" : "24h"} chart appears after two automatic snapshots.`, width / 2, height / 2);
+        return;
+      }
+      const values = displayRows.map(row => numberValue(row.total));
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const spread = Math.max(1, max - min);
+      const yMin = min - spread * 0.08;
+      const yMax = max + spread * 0.08;
+      const firstTs = displayRows[0].ts;
+      const lastTs = displayRows.at(-1).ts;
+      const x = ts => pad.left + (width - pad.left - pad.right) * (ts - firstTs) / Math.max(1, lastTs - firstTs);
+      const y = value => pad.top + (height - pad.top - pad.bottom) * (1 - (value - yMin) / (yMax - yMin));
+      for (let i = 0; i <= 4; i += 1) {
+        const yy = pad.top + (height - pad.top - pad.bottom) * i / 4;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, yy);
+        ctx.lineTo(width - pad.right, yy);
+        ctx.stroke();
+        const value = yMax - (yMax - yMin) * i / 4;
+        ctx.textAlign = "right";
+        ctx.fillText(money(value, "EUR", 0), pad.left - 10, yy + 4);
+      }
+      ctx.beginPath();
+      displayRows.forEach((row, index) => {
+        const xx = x(row.ts);
+        const yy = y(row.total);
+        if (index === 0) ctx.moveTo(xx, yy);
+        else ctx.lineTo(xx, yy);
+      });
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      displayRows.forEach((row, index) => {
+        ctx.beginPath();
+        ctx.arc(x(row.ts), y(row.total), index === displayRows.length - 1 ? 4 : 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = index === displayRows.length - 1 ? good : accent;
+        ctx.fill();
+      });
+      ctx.fillStyle = text;
+      ctx.textAlign = "left";
+      ctx.fillText(new Date(firstTs).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }), pad.left, height - 14);
+      ctx.textAlign = "right";
+      ctx.fillText(new Date(lastTs).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }), width - pad.right, height - 14);
+    }
+
+    function renderAllocation(t) {
+      const rows = [
+        ["Stocks", t.stocksValue],
+        ["Bonds", t.bondsValue],
+        ["Cash", t.cashValue],
+        ["Private equity", t.privateValue],
+        ["Real estate", t.realEstateValue],
+        ["Other", t.diversValue]
+      ].filter(row => row[1] > 0);
+      els.allocationBars.innerHTML = rows.length ? rows.map(([label, value]) => {
+        const weight = t.total ? value / t.total * 100 : 0;
+        return `<div class="bar-row"><strong>${escapeHtml(label)}</strong><div class="bar-track"><div class="bar-fill" style="--w:${Math.min(100, weight).toFixed(2)}%"></div></div><div class="num">${dashboardMoney(value)} | ${pct(weight)}</div></div>`;
+      }).join("") : `<div class="empty">No allocation.</div>`;
+    }
+
+    function renderDashboardBanks(total) {
+      const rows = sortRows(totalsByBank(), "dashboardBankBody");
+      els.dashboardBankBody.innerHTML = rows.length ? rows.slice(0, 8).map(row => `<tr><td>${escapeHtml(row.bank)}</td><td class="num">${dashboardMoney(row.total)}</td><td class="num">${pct(total ? row.total / total * 100 : 0)}</td></tr>`).join("") : `<tr><td colspan="3"><div class="empty">No bank.</div></td></tr>`;
+    }
+
+    function renderStocks() {
+      renderStockExposures();
+      const rows = sortRows(state.stocks.map((row, index) => ({ ...row, __index: index })), "stocksBody");
+      els.stocksBody.innerHTML = rows.length ? rows.map(row => {
+        const index = row.__index;
+        const value = stockValueEur(row);
+        const day = stockDayPnlEur(row);
+        const total = stockTotalPnlEur(row);
+        return `<tr>
+          <td class="symbol">${renderLiveInput(row.symbol, `updateField('stocks', ${index}, 'symbol', this.value.toUpperCase())`, 'aria-label="Ticker"')}</td>
+          <td>${renderLiveInput(row.name, `updateField('stocks', ${index}, 'name', this.value)`, 'aria-label="Name"')}</td>
+          <td>${renderLiveInput(row.bank, `updateField('stocks', ${index}, 'bank', this.value)`, 'aria-label="Bank"')}</td>
+          <td class="num">${renderLiveInput(row.qty, `updateField('stocks', ${index}, 'qty', this.value)`, 'type="number" step="0.0001"')}</td>
+          <td class="num">${renderLiveInput(row.cost, `updateField('stocks', ${index}, 'cost', this.value)`, 'type="number" step="0.0001"')}</td>
+          <td>${currencySelect("stocks", index, row.currency)}</td>
+          <td class="num">${money(value, "EUR", 2)}</td>
+          <td class="num ${signedClass(day)}">${money(day, "EUR", 2)}</td>
+          <td class="num ${signedClass(total)}">${money(total, "EUR", 2)}</td>
+          <td class="actions"><button class="mini danger" type="button" onclick="removeRow('stocks', ${index})">Del.</button></td>
+        </tr>`;
+      }).join("") : `<tr><td colspan="10"><div class="empty">No stock line.</div></td></tr>`;
+    }
+
+    function renderStockExposures() {
+      const rows = sortRows(stockExposures(), "stockExposureBody");
+      els.stockExposureBody.innerHTML = rows.length ? rows.map(row => {
+        const isExpanded = expandedStockSymbols.has(row.symbol);
+        const toggle = row.bankCount > 1 ? `<button class="expand-btn" type="button" data-symbol="${escapeHtml(row.symbol)}" aria-label="View ${escapeHtml(row.symbol)} details">${isExpanded ? "-" : "+"}</button>` : "";
+        const detailRows = isExpanded ? row.lines.map(line => {
+          const lineValue = stockValueEur(line);
+          const lineDay = stockDayPnlEur(line);
+          const lineTotal = stockTotalPnlEur(line);
+          return `<tr class="detail-row">
+            <td></td>
+            <td></td>
+            <td><span class="detail-label">${escapeHtml(line.bank || "Unallocated")}</span></td>
+            <td class="num">${numberValue(line.qty).toLocaleString("en-US", { maximumFractionDigits: 4 })}</td>
+            <td class="num">${money(numberValue(line.price), line.currency || row.displayCurrency, 2)}</td>
+            <td class="num">${money(numberValue(line.previousClose), line.currency || row.displayCurrency, 2)}</td>
+            <td class="num market-highlight ${signedClass(line.previousClose ? (numberValue(line.price) - numberValue(line.previousClose)) / numberValue(line.previousClose) * 100 : 0)}">${line.previousClose ? pct((numberValue(line.price) - numberValue(line.previousClose)) / numberValue(line.previousClose) * 100) : pct(0)}</td>
+            <td class="num">${money(numberValue(line.cost), line.currency || row.displayCurrency, 2)}</td>
+            <td class="num">${money(lineValue, "EUR", 2)}</td>
+            <td class="num market-highlight ${signedClass(lineDay)}">${money(lineDay, "EUR", 2)}</td>
+            <td class="num ${signedClass(lineTotal)}">${money(lineTotal, "EUR", 2)}</td>
+            <td></td>
+          </tr>`;
+        }).join("") : "";
+        return `<tr>
+        <td class="expand-cell">${toggle}</td>
+        <td class="symbol"><strong>${escapeHtml(row.symbol)}</strong></td>
+        <td>${escapeHtml(row.name)}</td>
+        <td class="num">${numberValue(row.qty).toLocaleString("en-US", { maximumFractionDigits: 4 })}</td>
+        <td class="num">${money(row.avgPrice, row.displayCurrency, 2)}</td>
+        <td class="num">${money(row.avgPreviousClose, row.displayCurrency, 2)}</td>
+        <td class="num market-highlight ${signedClass(row.dayMovePct)}">${pct(row.dayMovePct)}</td>
+        <td class="num">${money(row.weightedCost, row.displayCurrency, 2)}</td>
+        <td class="num">${money(row.valueEur, "EUR", 2)}</td>
+        <td class="num market-highlight ${signedClass(row.dayPnlEur)}">${money(row.dayPnlEur, "EUR", 2)}</td>
+        <td class="num ${signedClass(row.totalPnlEur)}">${money(row.totalPnlEur, "EUR", 2)}</td>
+        <td class="num">${row.bankCount}</td>
+      </tr>${detailRows}`;
+      }).join("") : `<tr><td colspan="12"><div class="empty">No stock exposure.</div></td></tr>`;
+    }
+
+    function toggleStockExposure(symbol) {
+      if (expandedStockSymbols.has(symbol)) {
+        expandedStockSymbols.delete(symbol);
+      } else {
+        expandedStockSymbols.add(symbol);
+      }
+      renderStockExposures();
+    }
+
+    function renderBonds() {
+      const rows = sortRows(state.bonds.map((row, index) => ({ ...row, __index: index })), "bondsBody");
+      els.bondsBody.innerHTML = rows.length ? rows.map(row => {
+        const index = row.__index;
+        const accrued = bondAccruedEur(row);
+        const value = bondValueEur(row);
+        const pnl = bondPnlEur(row);
+        return `<tr>
+          <td>${renderInput(row.name, `updateField('bonds', ${index}, 'name', this.value)`)}</td>
+          <td><select onchange="updateField('bonds', ${index}, 'type', this.value)"><option ${row.type === "Treasury US" ? "selected" : ""}>Treasury US</option><option ${row.type === "Private OTC bond" ? "selected" : ""}>Private OTC bond</option><option ${row.type === "Autre" ? "selected" : ""}>Autre</option></select></td>
+          <td>${renderInput(row.bank, `updateField('bonds', ${index}, 'bank', this.value)`)}</td>
+          <td>${renderInput(row.issuer, `updateField('bonds', ${index}, 'issuer', this.value)`)}</td>
+          <td>${currencySelect("bonds", index, row.currency)}</td>
+          <td class="num">${renderInput(row.nominal, `updateField('bonds', ${index}, 'nominal', this.value)`, 'type="number" step="1"')}</td>
+          <td class="num">${renderInput(row.cleanPrice, `updateField('bonds', ${index}, 'cleanPrice', this.value)`, 'type="number" step="0.0001"')}</td>
+          <td class="num">${renderInput(row.costPrice, `updateField('bonds', ${index}, 'costPrice', this.value)`, 'type="number" step="0.0001"')}</td>
+          <td class="num">${renderInput(row.couponRate, `updateField('bonds', ${index}, 'couponRate', this.value)`, 'type="number" step="0.0001"')}</td>
+          <td class="num">${renderInput(row.frequency, `updateField('bonds', ${index}, 'frequency', this.value)`, 'type="number" step="1" min="1"')}</td>
+          <td>${renderInput(row.lastCoupon, `updateField('bonds', ${index}, 'lastCoupon', this.value)`, 'type="date"')}</td>
+          <td>${renderInput(row.nextCoupon, `updateField('bonds', ${index}, 'nextCoupon', this.value)`, 'type="date"')}</td>
+          <td>${renderInput(row.maturity, `updateField('bonds', ${index}, 'maturity', this.value)`, 'type="date"')}</td>
+          <td><select onchange="updateField('bonds', ${index}, 'dayCount', this.value)"><option ${row.dayCount === "ACT/ACT" ? "selected" : ""}>ACT/ACT</option><option ${row.dayCount === "ACT/360" ? "selected" : ""}>ACT/360</option><option ${row.dayCount === "ACT/365" ? "selected" : ""}>ACT/365</option><option ${row.dayCount === "30/360" ? "selected" : ""}>30/360</option></select></td>
+          <td class="num">${money(accrued, "EUR", 2)}</td>
+          <td class="num">${money(value, "EUR", 2)}</td>
+          <td class="num ${signedClass(pnl)}">${money(pnl, "EUR", 2)}</td>
+          <td class="actions"><button class="mini danger" type="button" onclick="removeRow('bonds', ${index})">Del.</button></td>
+        </tr>`;
+      }).join("") : `<tr><td colspan="18"><div class="empty">No bond line.</div></td></tr>`;
+    }
+
+    function renderCash() {
+      const summary = cashSummary();
+      const eurAmount = summary.byCurrency.get("EUR") || 0;
+      const usdAmount = summary.byCurrency.get("USD") || 0;
+      els.cashPageTotal.textContent = money(summary.totalEur, "EUR", 2);
+      els.cashPageEur.textContent = money(eurAmount, "EUR", 2);
+      els.cashPageEurContext.textContent = `${summary.positiveAccounts} positive account(s)${summary.negativeAccounts ? ` | ${summary.negativeAccounts} negative` : ""}`;
+      els.cashPageUsd.textContent = money(usdAmount, "USD", 2);
+      els.cashPageUsdContext.textContent = `EUR equivalent: ${money(usdAmount * fx("USD"), "EUR", 2)}`;
+      els.cashPageTopBank.textContent = summary.topBank ? summary.topBank.bank : "-";
+      els.cashPageTopBankContext.textContent = summary.topBank ? money(summary.topBank.value, "EUR", 2) : "No cash account";
+      const rows = sortRows(state.cash.map((row, index) => ({ ...row, __index: index })), "cashBody");
+      els.cashBody.innerHTML = rows.length ? rows.map(row => {
+        const index = row.__index;
+        return `<tr>
+        <td>${renderInput(row.name, `updateField('cash', ${index}, 'name', this.value)`)}</td>
+        <td>${renderInput(row.bank, `updateField('cash', ${index}, 'bank', this.value)`)}</td>
+        <td>${currencySelect("cash", index, row.currency)}</td>
+        <td class="num">${renderInput(row.amount, `updateField('cash', ${index}, 'amount', this.value)`, 'type="number" step="0.01"')}</td>
+        <td class="num">${money(cashValueEur(row), "EUR", 2)}</td>
+        <td class="actions"><button class="mini danger" type="button" onclick="removeRow('cash', ${index})">Del.</button></td>
+      </tr>`;
+      }).join("") : `<tr><td colspan="6"><div class="empty">No cash line.</div></td></tr>`;
+    }
+
+    function renderPrivateAssets() {
+      const totalValue = state.privateAssets.reduce((sum, row) => sum + privateValueEur(row), 0);
+      const totalCommitment = state.privateAssets.reduce((sum, row) => sum + numberValue(row.commitmentEur), 0);
+      const totalCalled = state.privateAssets.reduce((sum, row) => sum + numberValue(row.calledEur), 0);
+      const unfunded = Math.max(0, totalCommitment - totalCalled);
+      const largest = [...state.privateAssets].sort((a, b) => privateValueEur(b) - privateValueEur(a))[0];
+      els.privatePageValue.textContent = money(totalValue, "EUR", 2);
+      els.privatePageCommitment.textContent = money(totalCommitment, "EUR", 2);
+      els.privatePageCommitmentContext.textContent = `${state.privateAssets.length} deal(s) | unfunded ${money(unfunded, "EUR", 2)}`;
+      els.privatePageCalled.textContent = money(totalCalled, "EUR", 2);
+      els.privatePageCalledContext.textContent = totalCommitment ? `${pct(totalCalled / totalCommitment * 100)} called` : "No commitment";
+      els.privatePageLargest.textContent = largest ? (largest.name || "Unnamed deal") : "-";
+      els.privatePageLargestContext.textContent = largest ? money(privateValueEur(largest), "EUR", 2) : "No private asset";
+      const rows = sortRows(state.privateAssets.map((row, index) => ({ ...row, __index: index })), "privateBody");
+      els.privateBody.innerHTML = rows.length ? rows.map(row => {
+        const index = row.__index;
+        return `<tr>
+        <td>${renderInput(row.name, `updateField('privateAssets', ${index}, 'name', this.value)`)}</td>
+        <td>${renderInput(row.bank, `updateField('privateAssets', ${index}, 'bank', this.value)`)}</td>
+        <td class="num">${renderInput(row.valueEur, `updateField('privateAssets', ${index}, 'valueEur', this.value)`, 'type="number" step="1"')}</td>
+        <td class="num">${renderInput(row.commitmentEur, `updateField('privateAssets', ${index}, 'commitmentEur', this.value)`, 'type="number" step="1"')}</td>
+        <td class="num">${renderInput(row.calledEur, `updateField('privateAssets', ${index}, 'calledEur', this.value)`, 'type="number" step="1"')}</td>
+        <td>${renderInput(row.valuationDate, `updateField('privateAssets', ${index}, 'valuationDate', this.value)`, 'type="date"')}</td>
+        <td>${renderInput(row.note, `updateField('privateAssets', ${index}, 'note', this.value)`)}</td>
+        <td class="actions"><button class="mini danger" type="button" onclick="removeRow('privateAssets', ${index})">Del.</button></td>
+      </tr>`;
+      }).join("") : `<tr><td colspan="8"><div class="empty">No private equity asset.</div></td></tr>`;
+    }
+
+    function renderRealEstate() {
+      const totalGross = state.realEstate.reduce((sum, row) => sum + realEstateGrossEur(row), 0);
+      const totalDebt = state.realEstate.reduce((sum, row) => sum + realEstateDebtEur(row), 0);
+      const totalNet = state.realEstate.reduce((sum, row) => sum + realEstateNetEur(row), 0);
+      const monthlyNetRent = state.realEstate.reduce((sum, row) => sum + realEstateMonthlyNetRentEur(row), 0);
+      const monthlyPayments = state.realEstate.reduce((sum, row) => sum + realEstateMonthlyPaymentEur(row), 0);
+      const monthlyCashflow = state.realEstate.reduce((sum, row) => sum + realEstateMonthlyCashflowEur(row), 0);
+      const netYield = totalGross ? monthlyCashflow * 12 / totalGross * 100 : 0;
+      const ltv = totalGross ? totalDebt / totalGross * 100 : 0;
+      els.realEstatePageNet.textContent = money(totalNet, "EUR", 2);
+      els.realEstatePageDebt.textContent = money(totalDebt, "EUR", 2);
+      els.realEstatePageDebtContext.textContent = `${pct(ltv)} LTV | ${money(monthlyPayments, "EUR", 2)} monthly payments`;
+      els.realEstatePageRent.textContent = money(monthlyCashflow, "EUR", 2);
+      els.realEstatePageRent.className = signedClass(monthlyCashflow);
+      els.realEstatePageRentContext.textContent = `${money(monthlyNetRent, "EUR", 2)} net rent before debt`;
+      els.realEstatePageYield.textContent = pct(netYield);
+      els.realEstatePageYieldContext.textContent = `${money(monthlyCashflow * 12, "EUR", 2)} annualized after debt`;
+      const rows = sortRows(state.realEstate.map((row, index) => ({ ...row, __index: index })), "realEstateBody");
+      els.realEstateBody.innerHTML = rows.length ? rows.map(row => {
+        const index = row.__index;
+        const netValue = realEstateNetEur(row);
+        const netRent = realEstateMonthlyNetRentEur(row);
+        const monthlyPayment = realEstateMonthlyPaymentEur(row);
+        const debtLeft = realEstateDebtEur(row);
+        const cashflow = realEstateMonthlyCashflowEur(row);
+        const yieldNet = realEstateGrossEur(row) ? cashflow * 12 / realEstateGrossEur(row) * 100 : 0;
+        return `<tr>
+        <td>${renderInput(row.name, `updateField('realEstate', ${index}, 'name', this.value)`)}</td>
+        <td>${renderInput(row.city, `updateField('realEstate', ${index}, 'city', this.value)`)}</td>
+        <td>${renderInput(row.bank, `updateField('realEstate', ${index}, 'bank', this.value)`)}</td>
+        <td>${currencySelect("realEstate", index, row.currency)}</td>
+        <td class="num">${renderInput(row.grossValue, `updateField('realEstate', ${index}, 'grossValue', this.value)`, 'type="number" step="1"')}</td>
+        <td class="num">${renderInput(row.originalLoan ?? row.debt, `updateField('realEstate', ${index}, 'originalLoan', this.value)`, 'type="number" step="1"')}</td>
+        <td class="num">${renderInput(row.annualRate, `updateField('realEstate', ${index}, 'annualRate', this.value)`, 'type="number" step="0.0001"')}</td>
+        <td class="num">${renderInput(row.termYears, `updateField('realEstate', ${index}, 'termYears', this.value)`, 'type="number" step="0.1"')}</td>
+        <td>${renderInput(row.loanStartDate, `updateField('realEstate', ${index}, 'loanStartDate', this.value)`, 'type="date"')}</td>
+        <td class="num">${money(monthlyPayment, "EUR", 2)}</td>
+        <td class="num">${money(debtLeft, "EUR", 2)}</td>
+        <td class="num">${money(netValue, "EUR", 2)}</td>
+        <td class="num">${renderInput(row.monthlyRent, `updateField('realEstate', ${index}, 'monthlyRent', this.value)`, 'type="number" step="1"')}</td>
+        <td class="num">${renderInput(row.monthlyCosts, `updateField('realEstate', ${index}, 'monthlyCosts', this.value)`, 'type="number" step="1"')}</td>
+        <td class="num ${signedClass(cashflow)}">${money(cashflow, "EUR", 2)}</td>
+        <td class="num">${pct(yieldNet)}</td>
+        <td>${renderInput(row.valuationDate, `updateField('realEstate', ${index}, 'valuationDate', this.value)`, 'type="date"')}</td>
+        <td>${renderInput(row.note, `updateField('realEstate', ${index}, 'note', this.value)`)}</td>
+        <td class="actions"><button class="mini danger" type="button" onclick="removeRow('realEstate', ${index})">Del.</button></td>
+      </tr>`;
+      }).join("") : `<tr><td colspan="19"><div class="empty">No property.</div></td></tr>`;
+    }
+
+    function renderDivers() {
+      const rowsRaw = state.divers.map(row => ({ ...row, valueEur: diversValueEur(row) }));
+      const totalValue = rowsRaw.reduce((sum, row) => sum + row.valueEur, 0);
+      const largest = [...rowsRaw].sort((a, b) => b.valueEur - a.valueEur)[0];
+      const categories = new Set(rowsRaw.map(row => row.category || "Other"));
+      const usdNative = rowsRaw.filter(row => row.currency === "USD").reduce((sum, row) => sum + numberValue(row.qty) * numberValue(row.unitPrice), 0);
+      const usdValue = usdNative * fx("USD");
+      els.diversPageValue.textContent = money(totalValue, "EUR", 2);
+      els.diversPageLargest.textContent = largest ? (largest.name || largest.category || "Unnamed asset") : "-";
+      els.diversPageLargestContext.textContent = largest ? `${largest.category || "Other"} | ${money(largest.valueEur, "EUR", 2)}` : "No other asset";
+      els.diversPageCategories.textContent = String(categories.size);
+      els.diversPageCategoriesContext.textContent = `${state.divers.length} investment(s)`;
+      els.diversPageUsd.textContent = money(usdValue, "EUR", 2);
+      els.diversPageUsdContext.textContent = `${pct(totalValue ? usdValue / totalValue * 100 : 0)} of Other`;
+      const rows = sortRows(state.divers.map((row, index) => ({ ...row, __index: index })), "diversBody");
+      els.diversBody.innerHTML = rows.length ? rows.map(row => {
+        const index = row.__index;
+        return `<tr>
+        <td><select onchange="updateField('divers', ${index}, 'category', this.value)"><option value="Montre" ${row.category === "Montre" || row.category === "Watch" ? "selected" : ""}>Watch</option><option value="Bitcoin" ${row.category === "Bitcoin" ? "selected" : ""}>Bitcoin</option><option value="Assurance vie" ${row.category === "Assurance vie" || row.category === "Life insurance" ? "selected" : ""}>Life insurance</option><option value="Autre" ${row.category === "Autre" || row.category === "Other" ? "selected" : ""}>Other</option></select></td>
+        <td>${renderInput(row.name, `updateField('divers', ${index}, 'name', this.value)`)}</td>
+        <td>${renderInput(row.bank, `updateField('divers', ${index}, 'bank', this.value)`)}</td>
+        <td>${currencySelect("divers", index, row.currency)}</td>
+        <td class="num">${renderInput(row.qty, `updateField('divers', ${index}, 'qty', this.value)`, 'type="number" step="0.00000001"')}</td>
+        <td class="num">${renderInput(row.unitPrice, `updateField('divers', ${index}, 'unitPrice', this.value)`, 'type="number" step="0.01"')}</td>
+        <td class="num">${money(diversValueEur(row), "EUR", 2)}</td>
+        <td>${renderInput(row.note, `updateField('divers', ${index}, 'note', this.value)`)}</td>
+        <td class="actions"><button class="mini danger" type="button" onclick="removeRow('divers', ${index})">Del.</button></td>
+      </tr>`;
+      }).join("") : `<tr><td colspan="9"><div class="empty">No other investment.</div></td></tr>`;
+    }
+
+    function snapshotToday() {
+      syncSettings();
+      const t = computeTotals();
+      const today = new Date().toISOString().slice(0, 10);
+      const snapshot = {
+        date: today,
+        savedAt: new Date().toLocaleString("en-US"),
+        total: t.total,
+        stocksValue: t.stocksValue,
+        bondsValue: t.bondsValue,
+        cashValue: t.cashValue,
+        privateValue: t.privateValue,
+        realEstateValue: t.realEstateValue,
+        diversValue: t.diversValue,
+        stocksDayPnl: t.stocksDayPnl,
+        eurUsd: state.eurUsd
+      };
+      const existing = state.history.findIndex(row => row.date === today);
+      if (existing >= 0) {
+        state.history[existing] = snapshot;
+        setStatus(`Snapshot dated ${today} updated.`);
+      } else {
+        state.history.push(snapshot);
+        setStatus(`Snapshot dated ${today} added.`);
+      }
+      state.history.sort((a, b) => a.date.localeCompare(b.date));
+      saveState();
+      render();
+    }
+
+    function removeSnapshot(index) {
+      state.history.splice(index, 1);
+      saveState();
+      render();
+      setStatus("Snapshot deleted.", "warning");
+    }
+
+    function renderHistory() {
+      const rows = state.history || [];
+      const displayRows = sortRows(rows.map((row, index) => ({ ...row, originalIndex: index, change: index > 0 ? numberValue(row.total) - numberValue(rows[index - 1]?.total) : 0 })), "historyBody");
+      const last = rows.at(-1);
+      const previous = rows.at(-2);
+      const change = last && previous ? last.total - previous.total : 0;
+      const changePct = previous && previous.total ? change / previous.total * 100 : 0;
+      els.historyLastTotal.textContent = last ? money(last.total) : "-";
+      els.historyLastDate.textContent = last ? `Snapshot dated ${last.date}` : "No snapshot";
+      els.historyLastChange.textContent = last && previous ? money(change, "EUR", 2) : "-";
+      els.historyLastChange.className = last && previous ? signedClass(change) : "";
+      els.historyLastChangePct.textContent = last && previous ? pct(changePct) : "Add at least two snapshots";
+      els.historyCount.textContent = String(rows.length);
+      els.historyBody.innerHTML = displayRows.length ? displayRows.map(row => {
+        const diff = row.change;
+        return `<tr>
+          <td>${escapeHtml(row.date)}</td>
+          <td class="num">${money(row.total, "EUR", 2)}</td>
+          <td class="num ${row.originalIndex > 0 ? signedClass(diff) : ""}">${row.originalIndex > 0 ? money(diff, "EUR", 2) : "-"}</td>
+          <td class="num">${money(row.stocksValue, "EUR", 2)}</td>
+          <td class="num">${money(row.bondsValue, "EUR", 2)}</td>
+          <td class="num">${money(row.cashValue, "EUR", 2)}</td>
+          <td class="num">${money(row.privateValue, "EUR", 2)}</td>
+          <td class="num">${money(row.realEstateValue, "EUR", 2)}</td>
+          <td class="num">${money(row.diversValue, "EUR", 2)}</td>
+          <td class="actions"><button class="mini danger" type="button" onclick="removeSnapshot(${row.originalIndex})">Del.</button></td>
+        </tr>`;
+      }).join("") : `<tr><td colspan="10"><div class="empty">No snapshot. Click Snapshot today to start tracking history.</div></td></tr>`;
+      drawHistoryChart(rows);
+    }
+
+    function drawHistoryChart(rows) {
+      const canvas = els.historyChart;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const width = Math.max(320, Math.floor(rect.width || canvas.clientWidth || 900));
+      const height = 320;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      const ctx = canvas.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+      const styles = getComputedStyle(document.documentElement);
+      const text = styles.getPropertyValue("--muted").trim() || "#6d716d";
+      const line = styles.getPropertyValue("--line").trim() || "#ded8cc";
+      const accent = styles.getPropertyValue("--accent").trim() || "#9c7a2f";
+      const good = styles.getPropertyValue("--accent-2").trim() || "#2f766d";
+      const pad = { top: 24, right: 22, bottom: 38, left: 72 };
+      ctx.strokeStyle = line;
+      ctx.lineWidth = 1;
+      ctx.font = "12px Aptos, Segoe UI, sans-serif";
+      ctx.fillStyle = text;
+      if (rows.length < 2) {
+        ctx.textAlign = "center";
+        ctx.fillText("Add at least two snapshots to display a chart.", width / 2, height / 2);
+        return;
+      }
+      const values = rows.map(row => row.total);
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const spread = Math.max(1, max - min);
+      const yMin = min - spread * 0.08;
+      const yMax = max + spread * 0.08;
+      const x = index => pad.left + (width - pad.left - pad.right) * index / Math.max(1, rows.length - 1);
+      const y = value => pad.top + (height - pad.top - pad.bottom) * (1 - (value - yMin) / (yMax - yMin));
+      for (let i = 0; i <= 4; i += 1) {
+        const yy = pad.top + (height - pad.top - pad.bottom) * i / 4;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, yy);
+        ctx.lineTo(width - pad.right, yy);
+        ctx.stroke();
+        const value = yMax - (yMax - yMin) * i / 4;
+        ctx.textAlign = "right";
+        ctx.fillText(money(value, "EUR", 0), pad.left - 10, yy + 4);
+      }
+      ctx.beginPath();
+      rows.forEach((row, index) => {
+        const xx = x(index);
+        const yy = y(row.total);
+        if (index === 0) ctx.moveTo(xx, yy);
+        else ctx.lineTo(xx, yy);
+      });
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      rows.forEach((row, index) => {
+        ctx.beginPath();
+        ctx.arc(x(index), y(row.total), 4, 0, Math.PI * 2);
+        ctx.fillStyle = index === rows.length - 1 ? good : accent;
+        ctx.fill();
+      });
+      ctx.fillStyle = text;
+      ctx.textAlign = "left";
+      ctx.fillText(rows[0].date, pad.left, height - 14);
+      ctx.textAlign = "right";
+      ctx.fillText(rows.at(-1).date, width - pad.right, height - 14);
+    }
+
+    function renderBanks() {
+      const total = computeTotals().total;
+      const rows = sortRows(totalsByBank(), "banksBody");
+      drawBankChart(rows, total);
+      els.banksBody.innerHTML = rows.length ? rows.map(row => {
+        const isExpanded = expandedBanks.has(row.bank);
+        const toggle = row.lines.length ? `<button class="expand-btn" type="button" data-bank="${escapeHtml(row.bank)}" aria-label="View ${escapeHtml(row.bank)} details">${isExpanded ? "-" : "+"}</button>` : "";
+        const detailRows = isExpanded ? row.lines.map(line => `<tr class="detail-row">
+          <td></td>
+          <td><span class="detail-label">${escapeHtml(line.type)}</span></td>
+          <td colspan="6">${escapeHtml(line.name)}</td>
+          <td class="num ${line.pnl === undefined ? "" : signedClass(line.pnl)}">${line.pnl === undefined ? "-" : money(line.pnl, "EUR", 2)}</td>
+          <td class="num total-highlight">${money(line.value, "EUR", 2)}</td>
+          <td></td>
+        </tr>`).join("") : "";
+        return `<tr>
+        <td class="expand-cell">${toggle}</td>
+        <td>${escapeHtml(row.bank)}</td>
+        <td class="num">${money(row.stocks, "EUR", 2)}</td>
+        <td class="num">${money(row.bonds, "EUR", 2)}</td>
+        <td class="num">${money(row.cash, "EUR", 2)}</td>
+        <td class="num">${money(row.privateValue, "EUR", 2)}</td>
+        <td class="num">${money(row.realEstate, "EUR", 2)}</td>
+        <td class="num">${money(row.divers, "EUR", 2)}</td>
+        <td class="num ${signedClass(row.pnl)}">${money(row.pnl, "EUR", 2)}</td>
+        <td class="num total-highlight">${money(row.total, "EUR", 2)}</td>
+        <td class="num">${pct(total ? row.total / total * 100 : 0)}</td>
+      </tr>${detailRows}`;
+      }).join("") : `<tr><td colspan="11"><div class="empty">No bank.</div></td></tr>`;
+    }
+
+    function toggleBank(bank) {
+      if (expandedBanks.has(bank)) {
+        expandedBanks.delete(bank);
+      } else {
+        expandedBanks.add(bank);
+      }
+      renderBanks();
+    }
+
+    function currencySelect(collection, index, value) {
+      return `<select onchange="updateField('${collection}', ${index}, 'currency', this.value)"><option value="EUR" ${value === "EUR" ? "selected" : ""}>EUR</option><option value="USD" ${value === "USD" ? "selected" : ""}>USD</option></select>`;
+    }
+
+    function removeRow(collection, index) {
+      state[collection].splice(index, 1);
+      saveState();
+      render();
+    }
+
+    function addStock() {
+      state.stocks.push({ symbol: "", name: "", bank: "", portfolio: "", qty: 0, price: 0, previousClose: 0, cost: 0, currency: "USD" });
+      saveState();
+      render();
+    }
+
+    function addBond() {
+      state.bonds.push({ name: "", type: "Treasury US", bank: "", issuer: "", currency: "USD", nominal: 0, cleanPrice: 100, costPrice: 100, couponRate: 0, frequency: 2, lastCoupon: "", nextCoupon: "", maturity: "", dayCount: "ACT/ACT" });
+      saveState();
+      render();
+    }
+
+    function addCash() {
+      state.cash.push({ name: "", bank: "", currency: "EUR", amount: 0 });
+      saveState();
+      render();
+    }
+
+    function addPrivateAsset() {
+      state.privateAssets.push({ name: "", bank: "", valueEur: 0, commitmentEur: 0, calledEur: 0, valuationDate: "", note: "" });
+      saveState();
+      render();
+    }
+
+    function addRealEstate() {
+      state.realEstate.push({ name: "", city: "", bank: "Direct", currency: "EUR", grossValue: 0, originalLoan: 0, annualRate: 0, termYears: 0, loanStartDate: "", monthlyRent: 0, monthlyCosts: 0, valuationDate: "", note: "" });
+      saveState();
+      render();
+    }
+
+    function addDivers() {
+      state.divers.push({ category: "Autre", name: "", bank: "", currency: "EUR", qty: 1, unitPrice: 0, note: "" });
+      saveState();
+      render();
+    }
+
+    async function refreshQuotes() {
+      state.apiKey = els.apiKey.value.trim();
+      saveState();
+      if (!state.apiKey) {
+        setStatus("Add a Finnhub key to update stock prices automatically.", "warning");
+        return;
+      }
+      const symbols = [...new Set(state.stocks.map(row => row.symbol.trim().toUpperCase()).filter(Boolean))];
+      if (!symbols.length) {
+        setStatus("No ticker to refresh.", "warning");
+        return;
+      }
+      setStatus(`Refreshing ${symbols.length} ticker(s)...`);
+      let ok = 0;
+      let failed = 0;
+      for (const symbol of symbols) {
+        try {
+          const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${encodeURIComponent(state.apiKey)}`;
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const quote = await response.json();
+          if (!quote || !Number.isFinite(Number(quote.c)) || Number(quote.c) <= 0) throw new Error("Invalid price");
+          state.stocks.filter(row => row.symbol.trim().toUpperCase() === symbol).forEach(row => {
+            row.price = Number(quote.c);
+            if (Number.isFinite(Number(quote.pc)) && Number(quote.pc) > 0) row.previousClose = Number(quote.pc);
+          });
+          ok += 1;
+        } catch (error) {
+          failed += 1;
+          console.warn(`Refresh failed for ${symbol}`, error);
+        }
+      }
+      state.lastUpdate = new Date().toLocaleString("en-US");
+      saveState();
+      render();
+      setStatus(`${ok} ticker(s) updated${failed ? `, ${failed} failure(s)` : ""}.`);
+    }
+
+    function setStatus(message, type = "") {
+      els.statusLine.textContent = message;
+      els.statusLine.className = `status ${type}`;
+    }
+
+    function scheduleRefresh() {
+      if (timer) window.clearInterval(timer);
+      const seconds = numberValue(state.refreshInterval);
+      if (seconds > 0) {
+        timer = window.setInterval(refreshQuotes, seconds * 1000);
+        if (!els.statusLine.textContent.includes("updated") && !els.statusLine.textContent.includes("Refresh de")) {
+          setStatus(`Manual refresh available at any time. Auto refresh active every ${seconds === 60 ? "1 min" : `${seconds} sec`}.`);
+        }
+      } else if (!els.statusLine.textContent.includes("updated") && !els.statusLine.textContent.includes("Refresh de")) {
+        setStatus("Manual refresh available at any time. Auto refresh disabled.");
+      }
+    }
+
+    function syncSettings() {
+      state.apiKey = els.apiKey.value.trim();
+      state.eurUsd = numberValue(els.eurUsd.value);
+      state.refreshInterval = numberValue(els.refreshInterval.value);
+      saveState();
+    }
+
+    function exportJson() {
+      syncSettings();
+      state.dataSavedAt = new Date().toLocaleString("en-US");
+      saveState();
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "patrimoine-data.json";
+      link.click();
+      URL.revokeObjectURL(url);
+      renderDataStatus();
+      setStatus("patrimoine-data.json generated. Save it privately through Files, iCloud Drive, OneDrive or Downloads.", "warning");
+    }
+
+    async function saveDataFile() {
+      syncSettings();
+      state.dataSavedAt = new Date().toLocaleString("en-US");
+      saveState();
+      const json = JSON.stringify(state, null, 2);
+      const file = new File([json], "patrimoine-data.json", { type: "application/json" });
+      if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: "patrimoine-data.json",
+            text: "Latest Patrimoine dashboard data"
+          });
+          renderDataStatus();
+          setStatus("patrimoine-data.json ready. Choose Files, OneDrive or another destination in the share sheet.", "");
+          return;
+        } catch (error) {
+          if (error && error.name === "AbortError") {
+            setStatus("Save cancelled.", "warning");
+            return;
+          }
+          console.warn("Native share failed", error);
+        }
+      }
+      if (window.showSaveFilePicker) {
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: "patrimoine-data.json",
+            types: [{ description: "Wealth data JSON", accept: { "application/json": [".json"] } }]
+          });
+          const writable = await handle.createWritable();
+          await writable.write(json);
+          await writable.close();
+          renderDataStatus();
+          setStatus("Data saved. Choose/replace patrimoine-data.json in Files, iCloud Drive, OneDrive or Downloads.", "");
+          return;
+        } catch (error) {
+          if (error && error.name === "AbortError") {
+            setStatus("Save cancelled.", "warning");
+            return;
+          }
+          console.warn("Direct save failed", error);
+        }
+      }
+      exportJson();
+    }
+
+    async function loadDataFile() {
+      if (window.showOpenFilePicker) {
+        try {
+          const [handle] = await window.showOpenFilePicker({
+            multiple: false,
+            types: [{ description: "Wealth data JSON", accept: { "application/json": [".json"] } }]
+          });
+          const file = await handle.getFile();
+          importJson(file);
+          return;
+        } catch (error) {
+          if (error && error.name === "AbortError") {
+            setStatus("Load cancelled.", "warning");
+            return;
+          }
+          console.warn("Direct load failed", error);
+        }
+      }
+      els.importFile.click();
+    }
+
+    function importJson(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          state = normalizeState(JSON.parse(reader.result));
+          state.dataLoadedAt = new Date().toLocaleString("en-US");
+          saveState();
+          render();
+          setStatus(`Data loaded from ${file.name}. Remember to save after your next changes.`);
+        } catch {
+          setStatus("Import failed: invalid JSON file.", "warning");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    document.addEventListener("click", event => {
+      const th = event.target.closest("th.sortable");
+      if (th) handleSortClick(th);
+    });
+    document.querySelectorAll("button.nav").forEach(button => button.addEventListener("click", () => setPage(button.dataset.pageTarget)));
+    document.querySelectorAll("[data-dashboard-currency]").forEach(button => button.addEventListener("click", () => setDashboardCurrency(button.dataset.dashboardCurrency)));
+    document.querySelectorAll("[data-intraday-range]").forEach(button => button.addEventListener("click", () => setIntradayRange(button.dataset.intradayRange)));
+    document.getElementById("addStockBtn").addEventListener("click", addStock);
+    document.getElementById("addBondBtn").addEventListener("click", addBond);
+    document.getElementById("addCashBtn").addEventListener("click", addCash);
+    document.getElementById("addPrivateBtn").addEventListener("click", addPrivateAsset);
+    document.getElementById("addRealEstateBtn").addEventListener("click", addRealEstate);
+    document.getElementById("addDiversBtn").addEventListener("click", addDivers);
+    document.getElementById("addSnapshotBtn").addEventListener("click", snapshotToday);
+    document.getElementById("refreshBtn").addEventListener("click", refreshQuotes);
+    document.getElementById("privacyToggle").addEventListener("click", togglePrivacyMode);
+    document.getElementById("saveDataBtn").addEventListener("click", saveDataFile);
+    document.getElementById("loadDataBtn").addEventListener("click", loadDataFile);
+    document.getElementById("marketSettingsToggle").addEventListener("click", toggleMarketSettings);
+    document.getElementById("hideKeyBtn").addEventListener("click", () => {
+      const isPassword = els.apiKey.type === "password";
+      els.apiKey.type = isPassword ? "text" : "password";
+      document.getElementById("hideKeyBtn").textContent = isPassword ? "Hide key" : "Show key";
+    });
+    els.importFile.addEventListener("change", event => {
+      const file = event.target.files[0];
+      if (file) importJson(file);
+      event.target.value = "";
+    });
+    els.apiKey.addEventListener("change", syncSettings);
+    els.eurUsd.addEventListener("change", () => { syncSettings(); render(); });
+    els.refreshInterval.addEventListener("change", () => { syncSettings(); render(); });
+    els.stockExposureBody.addEventListener("click", event => {
+      const button = event.target.closest(".expand-btn");
+      if (button && button.dataset.symbol) toggleStockExposure(button.dataset.symbol);
+    });
+    els.banksBody.addEventListener("click", event => {
+      const button = event.target.closest(".expand-btn");
+      if (button && button.dataset.bank) toggleBank(button.dataset.bank);
+    });
+
+    window.updateField = updateField;
+    window.removeRow = removeRow;
+    window.removeSnapshot = removeSnapshot;
+    window.addEventListener("resize", () => {
+      drawHistoryChart(state.history || []);
+      drawIntradayChart(state.intradaySnapshots || []);
+      drawBankChart(sortRows(totalsByBank(), "banksBody"), computeTotals().total);
+    });
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(error => {
+          console.warn("Service worker registration failed", error);
+        });
+      });
+    }
+    render();
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
