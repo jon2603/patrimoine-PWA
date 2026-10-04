@@ -1,4 +1,4 @@
-const CACHE_NAME = "patrimoine-pwa-v1";
+const CACHE_NAME = "patrimoine-pwa-v21";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -27,7 +27,7 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
 
-  if (url.hostname.includes("finnhub.io")) {
+  if (url.hostname.includes("finnhub.io") || url.hostname.includes("fxapi.app") || url.hostname.includes("frankfurter")) {
     event.respondWith(fetch(event.request));
     return;
   }
