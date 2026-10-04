@@ -1,0 +1,9 @@
+patrimoine-data.json
+*-data.json
+*.bak
+*.backup
+*.zip
+.DS_Store
+Thumbs.db
+*.backup.html
+index.backup-before-private-bank-*.html
