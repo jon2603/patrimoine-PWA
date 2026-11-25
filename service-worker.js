@@ -1,11 +1,20 @@
-const CACHE_NAME = "patrimoine-pwa-v22";
+// Bump CACHE_NAME each time index.html changes, so the iPhone picks up the new version.
+const CACHE_NAME = "patrimoine-pwa-v23";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
-  "./icons/apple-touch-icon.png"
+  "./icons/apple-touch-icon.png",
+  "./assets/bank-logos/binance.svg",
+  "./assets/bank-logos/bnp.svg",
+  "./assets/bank-logos/cbh.png",
+  "./assets/bank-logos/fidelity.png",
+  "./assets/bank-logos/hsbc.svg",
+  "./assets/bank-logos/revolut.svg",
+  "./assets/bank-logos/transat.png",
+  "./assets/bank-logos/zurich.svg"
 ];
 
 self.addEventListener("install", event => {

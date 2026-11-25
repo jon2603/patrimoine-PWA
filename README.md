@@ -1,26 +1,30 @@
-# Patrimoine PWA
+# Patrimoine app
 
-Private installable PWA shell for the Patrimoine dashboard.
+The single version of the dashboard, for both the computer and the iPhone.
 
-## Privacy
+- **On the computer:** open `index.html` (double-click). The old link `patrimoine-private-bank-v3.html` one folder up redirects here.
+- **On the iPhone:** the same files, published through GitHub.
 
-Do not upload your real `patrimoine-data.json` to public hosting. This folder is designed to host only the app shell. Import your private JSON manually from the iPhone after installing the PWA.
+## Updating the iPhone version
 
-Browser-side API keys cannot be fully secret. If your Finnhub key is stored in imported JSON/localStorage, keep the site URL and repository private.
+1. Make the change in `index.html`.
+2. In `service-worker.js`, bump `CACHE_NAME` by one (for example `v23` → `v24`). Without this, the iPhone keeps the old version.
+3. Upload the contents of this folder to GitHub (see below).
 
-## Files to deploy
-
-Upload these files and folders:
+## Files to upload to GitHub
 
 - `index.html`
 - `manifest.json`
 - `service-worker.js`
 - `icons/`
+- `assets/` (bank logos)
 
-Do not upload:
+Never upload:
 
-- your real `patrimoine-data.json`
-- backups or exported portfolio JSON files
+- `patrimoine-data.json` or any data / backup JSON file
+- the `archives` or `backups` folders
+
+Browser-side API keys cannot be fully secret. If your Finnhub key is stored in imported JSON/localStorage, keep the site URL and repository private.
 
 ## iPhone install
 

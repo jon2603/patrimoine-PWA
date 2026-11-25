@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -481,6 +481,90 @@
     }
 
     header .subtitle { display: none; }
+    header .eyebrow { display: none; }
+
+    .sync-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+    }
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--muted);
+      flex: none;
+    }
+    .sync-pill[data-sync-state="ok"] .sync-dot { background: var(--good); }
+    .sync-pill[data-sync-state="busy"] .sync-dot { background: var(--accent); animation: sync-pulse 1.2s ease-in-out infinite; }
+    .sync-pill[data-sync-state="warn"] .sync-dot { background: var(--warn); }
+    .sync-pill[data-sync-state="bad"] { color: var(--text); border-color: color-mix(in srgb, var(--bad) 55%, var(--line)); }
+    .sync-pill[data-sync-state="bad"] .sync-dot { background: var(--bad); }
+    @keyframes sync-pulse { 50% { opacity: .35; } }
+    @media (prefers-reduced-motion: reduce) { .sync-pill .sync-dot { animation: none; } }
+
+    .action-center { position: relative; }
+    .actions-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border-color: color-mix(in srgb, var(--accent) 60%, var(--line));
+      color: var(--text);
+      background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+    }
+    .actions-pill[hidden] { display: none; }
+    .actions-pill[data-tone="info"] { border-color: var(--line); background: var(--panel); color: var(--muted); }
+    .actions-count {
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #14110a;
+      font-size: 11px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .actions-pill[data-tone="info"] .actions-count { background: var(--line); color: var(--text); }
+    .actions-panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 40;
+      width: min(360px, calc(100vw - 24px));
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+    .actions-panel[hidden] { display: none; }
+    .actions-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+    .actions-item {
+      display: grid;
+      grid-template-columns: 8px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border-radius: 6px;
+    }
+    .actions-item + .actions-item { border-top: 1px solid var(--line-soft); }
+    .actions-item-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--accent); }
+    .actions-item[data-tone="info"] .actions-item-dot { background: var(--good); }
+    .actions-item-copy strong { display: block; font-size: 13px; font-weight: 500; color: var(--text); }
+    .actions-item-copy span { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); }
+    .actions-item-buttons { display: flex; gap: 6px; }
+    .actions-item-buttons button { min-height: 28px; padding: 4px 9px; font-size: 12px; }
+
+    button.nav.nav-settings { margin-top: 10px; }
+    #page-settings .collapsible-panel.collapsed .collapsible-content { display: grid; }
+    #page-settings .collapsible-panel.collapsed .status { display: block; }
+    #page-settings .collapsible-panel.collapsed #hideKeyBtn { display: inline-flex; }
+    #page-settings #marketSettingsToggle { display: none; }
+    #page-settings > .panel + .panel { margin-top: 12px; }
 
     header button {
       min-height: 30px;
@@ -3350,6 +3434,7 @@ body.privacy-mode .monthly-waterfall-bar {
         <button class="nav" type="button" data-page-target="monthly"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M7 14h3v3H7zM14 13v5M12 16h4"/></svg></span><span class="nav-label">Monthly review</span></button>
         <button class="nav" type="button" data-page-target="history"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg></span><span class="nav-label">History</span></button>
         <button class="nav" type="button" data-page-target="banks"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m3 9 9-5 9 5M4 20h16M6 9v8M10 9v8M14 9v8M18 9v8"/></svg></span><span class="nav-label">By bank</span></button>
+        <button class="nav nav-settings" type="button" data-page-target="settings"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></span><span class="nav-label">Settings &amp; sync</span></button>
       </nav>
       <section id="sidebarPulse" class="sidebar-pulse" role="button" tabindex="0" aria-label="Open portfolio allocation dashboard">
         <span class="sidebar-pulse-label">Portfolio pulse</span>
@@ -3373,6 +3458,17 @@ body.privacy-mode .monthly-waterfall-bar {
           </label>
           <div class="dubai-clock" id="dubaiClock" aria-live="polite">Dubai --:--</div>
           <div class="toolbar">
+            <div class="action-center">
+              <button id="actionsPill" class="actions-pill" type="button" aria-expanded="false" aria-controls="actionsPanel" hidden>
+                <span class="actions-count" id="actionsCount">0</span><span id="actionsLabel">To review</span>
+              </button>
+              <div id="actionsPanel" class="actions-panel" role="region" aria-label="Items to review" hidden>
+                <ul id="actionsList" class="actions-list"></ul>
+              </div>
+            </div>
+            <button id="syncPill" class="sync-pill" type="button" data-sync-state="local" title="Data sync and market settings">
+              <span class="sync-dot" aria-hidden="true"></span><span id="syncPillLabel">Local only</span>
+            </button>
             <button id="privacyToggle" type="button" aria-pressed="false">Hide data</button>
             <button id="refreshBtn" class="primary" type="button">Refresh prices</button>
             <input id="importFile" class="hidden" type="file" accept="application/json">
@@ -3425,6 +3521,7 @@ body.privacy-mode .monthly-waterfall-bar {
         </div>
       </section>
 
+      <section id="page-settings" class="page settings-page">
       <section class="panel">
         <div class="sync-box">
           <div>
@@ -3474,6 +3571,7 @@ body.privacy-mode .monthly-waterfall-bar {
           <label>Last update <input id="lastUpdate" type="text" readonly></label>
         </div>
         <div class="status" id="statusLine">The Refresh prices button works at any time. Auto refresh is optional: Never, 30 sec or 1 min.</div>
+      </section>
       </section>
 
       <section id="page-dashboard" class="page active">
@@ -5029,7 +5127,8 @@ body.privacy-mode .monthly-waterfall-bar {
       forecast: ["Planning", "Forecast", "Informal quarterly view of expected inflows and outflows."],
       monthly: ["Monthly control", "Monthly review", "Frozen month-end snapshots, inferred spending and performance attribution."],
       history: ["Time tracking", "History", "Regular snapshots of total wealth and main asset buckets."],
-      banks: ["Bank consolidation", "Wealth by bank", "Consolidated exposure by institution or custodian."]
+      banks: ["Bank consolidation", "Wealth by bank", "Consolidated exposure by institution or custodian."],
+      settings: ["Configuration", "Settings & sync", "OneDrive data file, weekly backups and market data settings."]
     };
 
     function loadState() {
@@ -5883,6 +5982,100 @@ body.privacy-mode .monthly-waterfall-bar {
       els.structuredToast.hidden = false;
     }
 
+    let actionNotices = [];
+    let actionItems = [];
+
+    function addActionNotice(title, text) {
+      const key = `${title}|${text}`;
+      if (actionNotices.some(notice => notice.key === key)) return;
+      actionNotices.push({ key, title, text });
+    }
+
+    function dueConditionalCoupons(asOf = todayIso()) {
+      return structuredCouponRows().filter(row => row.product.kind === "phoenix" && row.product.status === "active" && row.paymentDate <= asOf && !row.processed);
+    }
+
+    function collectActionItems() {
+      const items = [];
+      const bond = nextDueBondPayment();
+      if (bond) {
+        items.push({
+          tone: "due",
+          title: `${bond.kind === "argentina" ? "Bond payment" : "Coupon"} to confirm · ${bond.symbol}`,
+          meta: `Due ${bond.date} · ${money(bond.total, bond.currency, 2)}`,
+          cta: "Review",
+          run: () => checkBondPaymentAlert()
+        });
+      }
+      const dews = currentDewsCreditContext();
+      if (dews) {
+        items.push({
+          tone: "due",
+          title: "DEWS contribution to confirm",
+          meta: `Due ${dews.creditDate} · ${money(dews.amountUsd, "USD", 2)}`,
+          cta: "Review",
+          run: () => checkDewsMonthlyCredit()
+        });
+      }
+      const conditional = dueConditionalCoupons();
+      if (conditional.length) {
+        items.push({
+          tone: "due",
+          title: `${conditional.length} Phoenix coupon${conditional.length > 1 ? "s" : ""} to check`,
+          meta: "Confirm the barrier before crediting.",
+          cta: "Open",
+          run: () => setPage("structured")
+        });
+      }
+      actionNotices.forEach(notice => {
+        items.push({
+          tone: "info",
+          title: notice.title,
+          meta: notice.text,
+          cta: "Open",
+          run: () => setPage("structured"),
+          noticeKey: notice.key
+        });
+      });
+      return items;
+    }
+
+    function renderActionCenter() {
+      const pill = document.getElementById("actionsPill");
+      const list = document.getElementById("actionsList");
+      const panel = document.getElementById("actionsPanel");
+      if (!pill || !list || !panel) return;
+      actionItems = collectActionItems();
+      const due = actionItems.filter(item => item.tone === "due").length;
+      pill.hidden = actionItems.length === 0;
+      if (!actionItems.length) {
+        panel.hidden = true;
+        pill.setAttribute("aria-expanded", "false");
+      }
+      pill.dataset.tone = due ? "due" : "info";
+      document.getElementById("actionsCount").textContent = String(due || actionItems.length);
+      document.getElementById("actionsLabel").textContent = due ? "To review" : (actionItems.length > 1 ? "Updates" : "Update");
+      list.innerHTML = actionItems.map((item, index) => `
+        <li class="actions-item" data-tone="${item.tone}">
+          <span class="actions-item-dot" aria-hidden="true"></span>
+          <span class="actions-item-copy"><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.meta)}</span></span>
+          <span class="actions-item-buttons">
+            ${item.noticeKey ? `<button type="button" class="mini" data-action-dismiss="${index}" aria-label="Dismiss: ${escapeHtml(item.title)}">Dismiss</button>` : ""}
+            <button type="button" class="mini ${item.tone === "due" ? "primary" : ""}" data-action-run="${index}">${escapeHtml(item.cta)}</button>
+          </span>
+        </li>`).join("");
+    }
+
+    function toggleActionsPanel(force) {
+      const pill = document.getElementById("actionsPill");
+      const panel = document.getElementById("actionsPanel");
+      if (!pill || !panel) return;
+      const open = typeof force === "boolean" ? force : panel.hidden;
+      panel.hidden = !open;
+      pill.setAttribute("aria-expanded", String(open));
+      if (open) panel.querySelector("button")?.focus();
+    }
+
     function processStructuredCouponPayments(asOf = todayIso()) {
       const account = transatEurAccount();
       const credited = [];
@@ -5907,8 +6100,8 @@ body.privacy-mode .monthly-waterfall-bar {
       });
       if (changed) saveState();
       const dueConditional = structuredCouponRows().filter(row => row.product.kind === "phoenix" && row.product.status === "active" && row.paymentDate <= asOf && !row.processed);
-      if (credited.length) showStructuredToast("Coupon credited to Transatlantique EUR", credited.join(" · "));
-      else if (dueConditional.length) showStructuredToast("Conditional coupon to review", `${dueConditional.length} Phoenix payment${dueConditional.length > 1 ? "s are" : " is"} due. Confirm the barrier before crediting.`);
+      if (credited.length) addActionNotice("Coupon credited to Transatlantique EUR", credited.join(" · "));
+      renderActionCenter();
       return { credited, dueConditional };
     }
 
@@ -5937,7 +6130,8 @@ body.privacy-mode .monthly-waterfall-bar {
         note: `Conditional Phoenix coupon confirmed and credited${memoryApplied ? `, including ${memoryApplied} memory coupon(s)` : ""}`
       });
       saveState();
-      showStructuredToast("Coupon credited to Transatlantique EUR", `${money(amount, "EUR", 0)} credited for ${product.isin}.`);
+      addActionNotice("Coupon credited to Transatlantique EUR", `${money(amount, "EUR", 0)} credited for ${product.isin}.`);
+      renderActionCenter();
       render();
     }
 
@@ -6960,7 +7154,7 @@ body.privacy-mode .monthly-waterfall-bar {
       els.pageEyebrow.textContent = meta[0];
       els.pageTitle.textContent = meta[1];
       els.pageSubtitle.textContent = meta[2];
-      els.executiveStrip.classList.toggle("hidden", page === "dashboard");
+      els.executiveStrip.classList.add("hidden");
       window.requestAnimationFrame(fitTopKpiValues);
     }
 
@@ -7101,9 +7295,8 @@ body.privacy-mode .monthly-waterfall-bar {
       updateDubaiClock();
       renderBuyBankOptions(els.buyBank.value);
       configureKpiDetails();
-      checkBondPaymentAlert();
-      checkDewsMonthlyCredit();
       processStructuredCouponPayments();
+      renderActionCenter();
       renderDataStatus();
       renderTotals();
       renderEconomicPerformance();
@@ -7154,6 +7347,7 @@ body.privacy-mode .monthly-waterfall-bar {
       els.structuredNextPaymentContext.textContent = next ? `${next.product.isin} · ${money(next.product.couponAmount, "EUR", 0)}` : "No scheduled payment";
       els.structuredActiveCount.textContent = String(activeProducts.length);
       els.structuredDueAlert.hidden = dueConditional.length === 0;
+      renderActionCenter();
       els.structuredDueTitle.textContent = dueConditional.length === 1 ? "1 conditional coupon requires review" : `${dueConditional.length} conditional coupons require review`;
       els.structuredDueText.textContent = dueConditional.length ? "Confirm the 70% coupon barrier, then credit the coupon or carry it in memory." : "No conditional coupon requires action.";
       const transat = transatEurAccount();
@@ -7522,7 +7716,27 @@ body.privacy-mode .monthly-waterfall-bar {
       if (dataSyncState === "conflict") syncText = dataSyncMessage || "A newer OneDrive version was detected. Reconnect the data file to load it before saving.";
       if (dataSyncState === "error") syncText = dataSyncMessage || "OneDrive sync is unavailable. Changes remain saved in this browser.";
       els.dataStatus.textContent = `${syncText}${weekly} Daily auto snapshot: 23:00 Dubai time.`;
+      renderSyncPill(syncText);
       renderBackupStatus();
+    }
+
+    function renderSyncPill(detail) {
+      const pill = document.getElementById("syncPill");
+      const label = document.getElementById("syncPillLabel");
+      if (!pill || !label) return;
+      const labels = {
+        synced: ["ok", "Synced"],
+        saving: ["busy", "Saving…"],
+        connecting: ["busy", "Connecting…"],
+        remembered: ["warn", "Reconnect sync"],
+        conflict: ["bad", "Sync conflict"],
+        error: ["bad", "Sync error"]
+      };
+      const [tone, text] = labels[dataSyncState] || ["local", "Local only"];
+      pill.dataset.syncState = tone;
+      label.textContent = text;
+      pill.title = `${detail} Click to open Settings & sync.`;
+      pill.setAttribute("aria-label", `${text}. Open Settings and sync`);
     }
 
     function renderBackupStatus() {
@@ -7896,7 +8110,7 @@ body.privacy-mode .monthly-waterfall-bar {
       const now = Date.now();
       const last = state.intradaySnapshots?.at(-1);
       if (!force && last && now - numberValue(last.ts) < 4.5 * 60 * 1000) return;
-      checkDewsMonthlyCredit();
+      renderActionCenter();
       const t = computeTotals();
       state.intradaySnapshots = Array.isArray(state.intradaySnapshots) ? state.intradaySnapshots : [];
       state.intradaySnapshots.push({
@@ -8713,6 +8927,7 @@ body.privacy-mode .monthly-waterfall-bar {
     function closeBondCouponModal() {
       closeAccessibleModal(els.bondCouponModal);
       pendingBondPayment = null;
+      renderActionCenter();
     }
 
     function confirmBondCoupon() {
@@ -9040,6 +9255,7 @@ body.privacy-mode .monthly-waterfall-bar {
 
     function closeDewsCreditModal() {
       closeAccessibleModal(els.dewsCreditModal);
+      renderActionCenter();
     }
 
     function confirmDewsCredit() {
@@ -10737,6 +10953,39 @@ body.privacy-mode .monthly-waterfall-bar {
       if (event.key === "Escape" && els.txnEditModal.classList.contains("open")) closeTxnEditModal();
     });
     document.querySelectorAll("button.nav").forEach(button => button.addEventListener("click", () => setPage(button.dataset.pageTarget)));
+    document.getElementById("syncPill")?.addEventListener("click", () => setPage("settings"));
+    document.getElementById("actionsPill")?.addEventListener("click", event => {
+      event.stopPropagation();
+      toggleActionsPanel();
+    });
+    document.getElementById("actionsPanel")?.addEventListener("click", event => {
+      event.stopPropagation();
+      const dismiss = event.target.closest("[data-action-dismiss]");
+      if (dismiss) {
+        const item = actionItems[Number(dismiss.dataset.actionDismiss)];
+        actionNotices = actionNotices.filter(notice => notice.key !== item?.noticeKey);
+        renderActionCenter();
+        if (actionItems.length) document.querySelector("#actionsPanel button")?.focus();
+        else document.getElementById("syncPill")?.focus();
+        return;
+      }
+      const run = event.target.closest("[data-action-run]");
+      if (!run) return;
+      const item = actionItems[Number(run.dataset.actionRun)];
+      toggleActionsPanel(false);
+      item?.run();
+    });
+    document.addEventListener("click", event => {
+      const panel = document.getElementById("actionsPanel");
+      if (panel && !panel.hidden && !event.target.closest(".action-center")) toggleActionsPanel(false);
+    });
+    document.addEventListener("keydown", event => {
+      const panel = document.getElementById("actionsPanel");
+      if (event.key === "Escape" && panel && !panel.hidden) {
+        toggleActionsPanel(false);
+        document.getElementById("actionsPill")?.focus();
+      }
+    });
     els.marketTickerToggle.addEventListener("click", () => setTickerPaused(!tickerPaused()));
     els.sidebarPulse.addEventListener("click", () => {
       setPage("dashboard");
@@ -10981,7 +11230,7 @@ body.privacy-mode .monthly-waterfall-bar {
     ensureStructuredProductsSetup();
     render();
     updateBankStickyOffset();
-    if ("serviceWorker" in navigator) {
+    if ("serviceWorker" in navigator && location.protocol !== "file:") {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("./service-worker.js", { updateViaCache: "none" }).catch(error => {
           console.warn("Service worker registration failed", error);
