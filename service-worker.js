@@ -1,5 +1,5 @@
 // Bump CACHE_NAME each time index.html changes, so the iPhone picks up the new version.
-const CACHE_NAME = "patrimoine-pwa-v23";
+const CACHE_NAME = "patrimoine-pwa-v24";
 const APP_SHELL = [
   "./",
   "./index.html",

@@ -560,6 +560,110 @@
     .actions-item-buttons button { min-height: 28px; padding: 4px 9px; font-size: 12px; }
 
     button.nav.nav-settings { margin-top: 10px; }
+
+    /* ---------- Phone layout: bottom tab bar + menu drawer ---------- */
+    .mobile-tabbar, .nav-backdrop { display: none; }
+
+    @media (max-width: 780px) {
+      body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+      .app { padding: 10px 12px 16px; gap: 10px; }
+
+      .mobile-tabbar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 70;
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        padding: 4px 6px env(safe-area-inset-bottom);
+        border: 0;
+        border-top: 1px solid var(--line);
+        border-radius: 0;
+        background: color-mix(in srgb, var(--surface) 94%, transparent);
+        backdrop-filter: blur(14px);
+        box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.18);
+      }
+      .mobile-tabbar::before { content: none; }
+      .tab-btn {
+        min-height: 56px;
+        display: grid;
+        place-items: center;
+        align-content: center;
+        gap: 3px;
+        padding: 6px 2px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        box-shadow: none;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 500;
+      }
+      .tab-btn svg { width: 22px; height: 22px; }
+      .tab-btn.active { color: var(--accent); }
+      .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+      #appSidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 80;
+        width: min(320px, 86vw);
+        align-content: start;
+        padding: calc(12px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom));
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        background: var(--bg);
+        border-right: 1px solid var(--line);
+        box-shadow: 18px 0 40px rgba(0, 0, 0, 0.35);
+        transform: translateX(-104%);
+        visibility: hidden;
+        transition: transform 260ms cubic-bezier(.2, .8, .2, 1), visibility 0s linear 260ms;
+      }
+      body.nav-open #appSidebar {
+        transform: none;
+        visibility: visible;
+        transition: transform 260ms cubic-bezier(.2, .8, .2, 1);
+      }
+      #appSidebar nav { grid-template-columns: 1fr; }
+      #appSidebar button.nav { min-height: 44px; font-size: 14px; }
+      .nav-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 75;
+        display: block;
+        background: rgba(0, 0, 0, 0.45);
+      }
+      .nav-backdrop[hidden] { display: none; }
+      body.nav-open { overflow: hidden; }
+
+      body .app header { position: static; display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding: 10px; }
+      header h1 { font-size: 20px; }
+      .top-tools { justify-content: flex-start; }
+      header .top-tools { display: grid; grid-template-columns: minmax(0, 1fr); justify-content: stretch; gap: 8px; width: 100%; }
+      header .global-search { width: 100%; margin: 0; }
+      header .global-search input { width: 100%; min-height: 40px; font-size: 16px; }
+      header .dubai-clock { display: none; }
+      header .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
+      header .toolbar .action-center, header .toolbar button { width: 100%; }
+      header .toolbar button { min-height: 40px; justify-content: center; }
+      header .toolbar .action-center:has(> .actions-pill[hidden]) { display: none; }
+      .market-ticker { position: static; }
+      input, select, textarea { max-width: 100%; }
+      .table-wrap { -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+      .table-wrap > table { width: max-content; min-width: 100%; table-layout: auto; }
+      .table-wrap > table th, .table-wrap > table td { white-space: nowrap; }
+      .page > .grid.four { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .page > .grid.four .stat { min-height: 0; padding: 12px; }
+      .page > .grid.four .stat strong { font-size: 18px; overflow-wrap: anywhere; }
+      .structured-toast { bottom: calc(76px + env(safe-area-inset-bottom)); }
+    }
+
+    @media (max-width: 780px) and (prefers-reduced-motion: reduce) {
+      #appSidebar, body.nav-open #appSidebar { transition: none; }
+    }
     #page-settings .collapsible-panel.collapsed .collapsible-content { display: grid; }
     #page-settings .collapsible-panel.collapsed .status { display: block; }
     #page-settings .collapsible-panel.collapsed #hideKeyBtn { display: inline-flex; }
@@ -3328,7 +3432,8 @@ body.privacy-mode .monthly-waterfall-bar {
     }
 
     @media (max-width: 1080px) {
-      .app { grid-template-columns: 1fr; }
+      .app { grid-template-columns: minmax(0, 1fr); }
+      .app > * { min-width: 0; }
       aside { position: static; }
       nav { grid-template-columns: repeat(3, minmax(120px, 1fr)); }
       nav::before { grid-column: 1 / -1; }
@@ -3392,7 +3497,7 @@ body.privacy-mode .monthly-waterfall-bar {
 </head>
 <body>
   <main class="app">
-    <aside>
+    <aside id="appSidebar">
       <section class="brand">
         <div class="brand-lockup">
           <div class="brand-monogram" aria-hidden="true">JB</div>
@@ -4279,6 +4384,14 @@ body.privacy-mode .monthly-waterfall-bar {
         </section>
       </section>
     </div>
+    <div id="navBackdrop" class="nav-backdrop" hidden></div>
+    <nav id="mobileTabbar" class="mobile-tabbar" aria-label="Quick navigation">
+      <button type="button" class="tab-btn" data-tab-target="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Overview</span></button>
+      <button type="button" class="tab-btn" data-tab-target="stocks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 18 9 12l4 4 8-10"/><path d="M16 6h5v5"/></svg><span>Stocks</span></button>
+      <button type="button" class="tab-btn" data-tab-target="bonds"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>Bonds</span></button>
+      <button type="button" class="tab-btn" data-tab-target="structured"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 18V9M10 18V5M16 18v-7M22 18H2"/><path d="m3 7 6-4 6 6 6-5"/></svg><span>Structured</span></button>
+      <button type="button" class="tab-btn" id="mobileMenuBtn" aria-expanded="false" aria-controls="appSidebar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span></button>
+    </nav>
   </main>
   <aside id="structuredToast" class="structured-toast" role="status" aria-live="polite" hidden>
     <strong id="structuredToastTitle">Structured product update</strong>
@@ -7150,6 +7263,12 @@ body.privacy-mode .monthly-waterfall-bar {
       saveState();
       document.querySelectorAll(".page").forEach(el => el.classList.toggle("active", el.id === `page-${page}`));
       document.querySelectorAll("button.nav").forEach(el => el.classList.toggle("active", el.dataset.pageTarget === page));
+      const primaryTab = document.querySelector(`.tab-btn[data-tab-target="${page}"]`);
+      document.querySelectorAll(".tab-btn").forEach(el => {
+        const active = primaryTab ? el === primaryTab : el.id === "mobileMenuBtn";
+        el.classList.toggle("active", active);
+        if (el.dataset.tabTarget) el.setAttribute("aria-current", el === primaryTab ? "page" : "false");
+      });
       const meta = pageMeta[page] || pageMeta.dashboard;
       els.pageEyebrow.textContent = meta[0];
       els.pageTitle.textContent = meta[1];
@@ -10953,6 +11072,35 @@ body.privacy-mode .monthly-waterfall-bar {
       if (event.key === "Escape" && els.txnEditModal.classList.contains("open")) closeTxnEditModal();
     });
     document.querySelectorAll("button.nav").forEach(button => button.addEventListener("click", () => setPage(button.dataset.pageTarget)));
+
+    const phoneLayout = window.matchMedia("(max-width: 780px)");
+    function setNavDrawer(open) {
+      const menuBtn = document.getElementById("mobileMenuBtn");
+      const backdrop = document.getElementById("navBackdrop");
+      const sidebar = document.getElementById("appSidebar");
+      const wasOpen = document.body.classList.contains("nav-open");
+      document.body.classList.toggle("nav-open", open);
+      if (backdrop) backdrop.hidden = !open;
+      menuBtn?.setAttribute("aria-expanded", String(open));
+      if (open) sidebar?.querySelector("button.nav.active, button.nav")?.focus();
+      else if (wasOpen) menuBtn?.focus();
+    }
+    document.querySelectorAll(".tab-btn[data-tab-target]").forEach(button => button.addEventListener("click", () => {
+      setNavDrawer(false);
+      setPage(button.dataset.tabTarget);
+      window.scrollTo({ top: 0 });
+    }));
+    document.getElementById("mobileMenuBtn")?.addEventListener("click", () => setNavDrawer(!document.body.classList.contains("nav-open")));
+    document.getElementById("navBackdrop")?.addEventListener("click", () => setNavDrawer(false));
+    document.querySelectorAll("#appSidebar button.nav").forEach(button => button.addEventListener("click", () => {
+      if (!phoneLayout.matches) return;
+      setNavDrawer(false);
+      window.scrollTo({ top: 0 });
+    }));
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && document.body.classList.contains("nav-open")) setNavDrawer(false);
+    });
+    phoneLayout.addEventListener("change", event => { if (!event.matches) setNavDrawer(false); });
     document.getElementById("syncPill")?.addEventListener("click", () => setPage("settings"));
     document.getElementById("actionsPill")?.addEventListener("click", event => {
       event.stopPropagation();
