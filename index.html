@@ -612,7 +612,12 @@
         left: 0;
         z-index: 80;
         width: min(320px, 86vw);
+        height: 100vh;
+        height: 100dvh;
+        align-self: stretch;
         align-content: start;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
         padding: calc(12px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom));
         overflow-y: auto;
         overscroll-behavior: contain;
@@ -649,7 +654,22 @@
         column-gap: 0;
         row-gap: 8px;
         padding: 8px 8px 8px 12px;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
       }
+      header .actions-panel {
+        position: fixed;
+        top: calc(env(safe-area-inset-top) + 70px);
+        left: 12px;
+        right: 12px;
+        width: auto;
+        max-height: calc(100dvh - env(safe-area-inset-top) - 160px);
+        overflow-y: auto;
+        z-index: 90;
+      }
+      header .actions-item { grid-template-columns: 8px minmax(0, 1fr); }
+      header .actions-item-buttons { grid-column: 2; }
+      header .actions-item-buttons button { min-height: 36px; padding: 6px 14px; }
       header > div:first-child { grid-column: 1; grid-row: 1; min-width: 0; }
       header h1 { font-size: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
       header .top-tools, header .toolbar { display: contents; }
