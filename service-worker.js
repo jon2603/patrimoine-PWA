@@ -1,8 +1,10 @@
-// Bump CACHE_NAME each time index.html changes, so the iPhone picks up the new version.
-const CACHE_NAME = "patrimoine-pwa-v26";
+// Bump CACHE_NAME each time a file changes, so the iPhone picks up the new version.
+const CACHE_NAME = "patrimoine-pwa-v27";
 const APP_SHELL = [
   "./",
   "./index.html",
+  "./styles.css",
+  "./app.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
@@ -16,10 +18,12 @@ const APP_SHELL = [
   "./assets/bank-logos/transat.png",
   "./assets/bank-logos/zurich.svg"
 ];
+const APP_FILES = new Set(["index.html", "styles.css", "app.js", "manifest.json"]);
 
 self.addEventListener("install", event => {
+  // cache: "reload" skips the browser's HTTP cache, so a new version never installs stale files
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL.map(url => new Request(url, { cache: "reload" }))))
   );
   self.skipWaiting();
 });
@@ -41,13 +45,24 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  if (event.request.mode === "navigate") {
+  // Page and app code: network first (always the latest when online), cache when offline
+  const fileName = url.pathname.split("/").pop() || "index.html";
+  if (event.request.mode === "navigate" || (url.origin === self.location.origin && APP_FILES.has(fileName))) {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match("./index.html"))
+      fetch(event.request.url, { cache: "no-cache" })
+        .then(response => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request.mode === "navigate" ? "./index.html" : event.request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request.mode === "navigate" ? "./index.html" : event.request))
     );
     return;
   }
 
+  // Icons and logos: cache first
   event.respondWith(
     caches.match(event.request).then(cached => cached || fetch(event.request))
   );
