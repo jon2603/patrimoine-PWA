@@ -1548,6 +1548,7 @@ body.privacy-mode .monthly-waterfall-bar {
 .kpi-backdrop {
   position: absolute;
   inset: 0;
+  cursor: pointer; /* iOS only fires click on elements marked clickable */
   background: rgba(9, 12, 11, 0.56);
   backdrop-filter: blur(8px);
 }
@@ -3528,8 +3529,24 @@ td.symbol input {
 
 @media (max-width: 520px) {
   .app { padding: 12px; }
-  .kpi-modal { padding: 10px; }
-  .kpi-dialog { width: calc(100vw - 20px); max-height: calc(100vh - 20px); }
+  /* Phone: dialogs open as a bottom sheet, below the notch, with a tappable strip on top */
+  .kpi-modal {
+    align-items: flex-end;
+    padding: calc(env(safe-area-inset-top) + 56px) 8px calc(env(safe-area-inset-bottom) + 8px);
+  }
+  .kpi-dialog {
+    width: 100%;
+    max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 64px);
+    max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 64px);
+    border-radius: 22px;
+  }
+  .kpi-dialog-head { padding: 14px 14px 12px 18px; }
+  .kpi-dialog-head > button,
+  .kpi-dialog-head button.mini {
+    min-width: 72px;
+    min-height: 44px;
+    font-size: var(--fs-md);
+  }
   nav { grid-template-columns: 1fr; }
   h1 { font-size: var(--fs-2xl); }
   .stat strong { font-size: var(--fs-xl); }
