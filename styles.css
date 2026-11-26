@@ -3566,3 +3566,56 @@ td.symbol input {
   .monthly-preview { grid-template-columns: 1fr; }
   .monthly-waterfall { grid-template-columns: repeat(2, minmax(110px, 1fr)); }
 }
+
+/* ---------- Large row editor ---------- */
+.row-edit-host { white-space: nowrap; }
+.row-edit-host > input, .row-edit-host > select { vertical-align: middle; }
+.row-edit-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  margin-right: 6px;
+  padding: 0;
+  vertical-align: middle;
+  border-radius: 999px;
+  color: var(--accent-text);
+}
+.row-edit-btn svg { width: 15px; height: 15px; }
+tr.row-editing > td { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+
+.row-edit-dialog { width: min(760px, calc(100vw - 32px)); }
+.row-edit-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px 16px;
+}
+.row-edit-field { display: grid; gap: 6px; }
+.row-edit-field > span {
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.row-edit-field input,
+.row-edit-field select,
+.row-edit-field textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 10px 14px;
+  font-size: var(--fs-lg);
+}
+.row-edit-readonly {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.row-edit-readonly[hidden] { display: none; }
+@media (max-width: 520px) {
+  .row-edit-fields { grid-template-columns: 1fr; }
+}

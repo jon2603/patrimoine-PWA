@@ -6738,3 +6738,134 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
   });
 }
 restoreConnectedDataFile().finally(() => restoreBackupDirectory());
+
+/* ---------- Large row editor: open any editable table line in a big, readable form ---------- */
+const ROW_EDIT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>';
+let rowEditSourceRow = null;
+
+function editableControls(tr) {
+  return [...tr.querySelectorAll("td input:not([type=hidden]):not([type=checkbox]), td select, td textarea")]
+    .filter(control => !control.closest(".row-edit-cell-btn"));
+}
+
+function decorateEditableRows(root = document) {
+  root.querySelectorAll(".table-wrap tbody tr").forEach(tr => {
+    if (tr.dataset.rowEditReady || tr.closest("#rowEditModal")) return;
+    if (editableControls(tr).length < 2) return;
+    const firstCell = tr.querySelector("td");
+    if (!firstCell) return;
+    tr.dataset.rowEditReady = "1";
+    firstCell.classList.add("row-edit-host");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "row-edit-btn";
+    button.setAttribute("aria-label", "Open this line in a large editor");
+    button.title = "Enlarge this line";
+    button.innerHTML = ROW_EDIT_ICON;
+    firstCell.prepend(button);
+  });
+}
+
+function columnLabel(table, cellIndex) {
+  const th = table?.querySelectorAll("thead tr:last-child th")[cellIndex];
+  return (th?.innerText || th?.textContent || "").replace(/[▲▼↑↓⇅]/g, "").trim() || `Field ${cellIndex + 1}`;
+}
+
+function openRowEditor(tr) {
+  const table = tr.closest("table");
+  const panelTitle = tr.closest(".panel")?.querySelector(".panel-head h2")?.textContent?.trim() || "Edit line";
+  const fields = document.getElementById("rowEditFields");
+  const readonly = document.getElementById("rowEditReadonly");
+  rowEditSourceRow = { tbodyId: tr.parentElement?.id || "", rowIndex: tr.sectionRowIndex };
+  fields.innerHTML = "";
+  readonly.innerHTML = "";
+  let title = "";
+
+  [...tr.cells].forEach(cell => {
+    const label = columnLabel(table, cell.cellIndex);
+    const controls = [...cell.querySelectorAll("input:not([type=hidden]):not([type=checkbox]), select, textarea")];
+    if (controls.length) {
+      controls.forEach(original => {
+        if (!title && original.value && original.tagName !== "SELECT" && original.type !== "number") title = original.value;
+        const wrap = document.createElement("label");
+        wrap.className = "row-edit-field";
+        const caption = document.createElement("span");
+        caption.textContent = label;
+        const copy = original.cloneNode(true);
+        copy.removeAttribute("onchange");
+        copy.removeAttribute("oninput");
+        copy.removeAttribute("id");
+        copy.value = original.value;
+        if (copy.tagName === "SELECT") copy.selectedIndex = original.selectedIndex;
+        const push = () => {
+          original.value = copy.value;
+          original.dispatchEvent(new Event("change", { bubbles: true }));
+          refreshRowEditorReadonly();
+        };
+        copy.addEventListener("change", push);
+        wrap.append(caption, copy);
+        fields.append(wrap);
+      });
+    } else if (!cell.classList.contains("actions") && !cell.querySelector("button")) {
+      const text = cell.innerText.trim();
+      if (!text) return;
+      const item = document.createElement("div");
+      item.className = "kpi-summary-item";
+      item.dataset.cellIndex = String(cell.cellIndex);
+      item.innerHTML = `<span>${escapeHtml(label)}</span><strong>${escapeHtml(text)}</strong>`;
+      readonly.append(item);
+    }
+  });
+
+  document.getElementById("rowEditEyebrow").textContent = panelTitle;
+  document.getElementById("rowEditTitle").textContent = title || "Edit line";
+  readonly.hidden = !readonly.children.length;
+  tr.classList.add("row-editing");
+  openAccessibleModal(document.getElementById("rowEditModal"), fields.querySelector("input, select, textarea"));
+}
+
+function refreshRowEditorReadonly() {
+  // The table re-renders after each change: read the computed values from the fresh row at the same position.
+  if (!rowEditSourceRow) return;
+  window.setTimeout(() => {
+    if (!rowEditSourceRow) return;
+    const { tbodyId, rowIndex } = rowEditSourceRow;
+    const fresh = document.getElementById(tbodyId)?.rows[rowIndex];
+    if (!fresh) return;
+    fresh.classList.add("row-editing");
+    document.querySelectorAll("#rowEditReadonly [data-cell-index]").forEach(item => {
+      const cell = fresh.cells[Number(item.dataset.cellIndex)];
+      if (cell) item.querySelector("strong").textContent = cell.innerText.trim();
+    });
+  }, 80);
+}
+
+function closeRowEditor() {
+  closeAccessibleModal(document.getElementById("rowEditModal"));
+  document.querySelectorAll("tr.row-editing").forEach(tr => tr.classList.remove("row-editing"));
+  rowEditSourceRow = null;
+}
+
+document.addEventListener("click", event => {
+  const editButton = event.target.closest(".row-edit-btn");
+  if (editButton) {
+    event.preventDefault();
+    openRowEditor(editButton.closest("tr"));
+    return;
+  }
+  if (event.target.closest("[data-close-row-edit]")) closeRowEditor();
+});
+document.getElementById("rowEditClose")?.addEventListener("click", closeRowEditor);
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && document.getElementById("rowEditModal")?.classList.contains("open")) closeRowEditor();
+});
+let rowEditDecoratePending = false;
+new MutationObserver(() => {
+  if (rowEditDecoratePending) return;
+  rowEditDecoratePending = true;
+  window.setTimeout(() => {
+    rowEditDecoratePending = false;
+    decorateEditableRows();
+  }, 60);
+}).observe(document.querySelector(".app") || document.body, { childList: true, subtree: true });
+decorateEditableRows();
