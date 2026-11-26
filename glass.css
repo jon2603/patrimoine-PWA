@@ -1,0 +1,304 @@
+/* Glass theme: a frosted app window over a warm, out-of-focus backdrop,
+   with vivid per-asset-class gradient cards fading to black.
+   Loaded after styles.css. Remove the <link> to glass.css in index.html to switch it off. */
+
+:root {
+  --radius: 18px;
+  --radius-sm: 10px;
+  --glass: light-dark(rgba(255, 250, 242, 0.42), rgba(22, 20, 18, 0.42));
+  --glass-strong: light-dark(rgba(255, 250, 242, 0.80), rgba(18, 16, 14, 0.80));
+  --glass-dark: light-dark(rgba(34, 30, 26, 0.78), rgba(10, 10, 10, 0.55));
+  --glass-soft: light-dark(rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.06));
+  --glass-border: light-dark(rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.12));
+  --glass-edge: inset 0 1px 0 light-dark(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.14));
+  --glass-shadow: 0 18px 40px light-dark(rgba(60, 40, 20, 0.16), rgba(0, 0, 0, 0.45));
+  --glass-blur: blur(22px) saturate(1.4);
+  --glass-blur-strong: blur(36px) saturate(1.5);
+
+  /* One colour per asset class */
+  --tint-stocks: #f0a12a;
+  --tint-bonds: #17b3a3;
+  --tint-structured: #7b5cff;
+  --tint-cash: #3fbf62;
+  --tint-private: #e0457b;
+  --tint-realestate: #e2543b;
+  --tint-other: #3d7bea;
+  --tint-pnl: #9aa3ad;
+}
+
+/* ---------- Warm, out-of-focus backdrop ---------- */
+body {
+  background: light-dark(#d9cbb6, #17120e);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -15vmax;
+  z-index: 0;
+  pointer-events: none;
+  mask-image: none;
+  background-size: auto;
+  background-image:
+    radial-gradient(40vmax 34vmax at 18% 12%, light-dark(rgba(255, 236, 205, 0.95), rgba(150, 112, 70, 0.55)), transparent 70%),
+    radial-gradient(36vmax 30vmax at 82% 20%, light-dark(rgba(196, 160, 118, 0.80), rgba(92, 70, 48, 0.60)), transparent 70%),
+    radial-gradient(44vmax 36vmax at 60% 92%, light-dark(rgba(150, 118, 84, 0.70), rgba(70, 52, 36, 0.65)), transparent 70%),
+    radial-gradient(30vmax 26vmax at 8% 82%, light-dark(rgba(228, 206, 172, 0.85), rgba(118, 88, 58, 0.45)), transparent 70%),
+    radial-gradient(26vmax 22vmax at 92% 70%, light-dark(rgba(120, 150, 140, 0.35), rgba(30, 80, 72, 0.35)), transparent 70%);
+  filter: blur(30px);
+}
+
+/* ---------- The frosted app window (tablet and desktop) ---------- */
+@media (min-width: 781px) {
+  .app {
+    margin: 22px auto;
+    padding: 22px;
+    max-width: 1580px;
+    border: 1px solid var(--glass-border);
+    border-radius: 30px;
+    background: var(--glass);
+    box-shadow: var(--glass-edge), 0 40px 120px rgba(0, 0, 0, 0.35);
+    -webkit-backdrop-filter: var(--glass-blur-strong);
+    backdrop-filter: var(--glass-blur-strong);
+  }
+}
+
+/* ---------- Dark glass surfaces ---------- */
+.stat,
+.panel,
+.bank-card,
+.structured-card,
+.dashboard-bank-card,
+.executive-cell,
+nav,
+.sidebar-pulse,
+.market-ticker {
+  border-color: var(--glass-border);
+  background: var(--glass-dark);
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+
+/* Light theme keeps dark cards readable: text inside dark glass stays light */
+.stat, .panel, .bank-card, .structured-card, .dashboard-bank-card, .executive-cell,
+nav, .sidebar-pulse, .market-ticker {
+  color-scheme: dark;
+  --text: #f4efe4;
+  --ink: #f2ead9;
+  --muted: #b8b0a2;
+  --line: rgba(255, 255, 255, 0.12);
+  --line-soft: rgba(255, 255, 255, 0.07);
+  --panel: rgba(255, 255, 255, 0.04);
+  --panel-2: rgba(255, 255, 255, 0.06);
+  --bad-text: #ff8f88;
+  --good-text: #6ddba8;
+  --accent-text: #e7bb5a;
+  --link-text: #8ab8f2;
+  color: var(--text);
+}
+
+.stat, .panel, .bank-card, .structured-card, .dashboard-bank-card, .executive-cell {
+  transition: transform 220ms cubic-bezier(.2, .8, .2, 1), box-shadow 220ms ease, border-color 220ms ease;
+}
+@media (hover: hover) {
+  .stat:hover, .bank-card:hover, .dashboard-bank-card:hover, .structured-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--glass-edge), 0 26px 50px rgba(0, 0, 0, 0.45);
+  }
+}
+.panel:hover { border-color: rgba(255, 255, 255, 0.2); }
+
+/* Inner layers clear so the glass shows through */
+.panel-head {
+  background: transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+.table-wrap, .status { background: transparent; }
+.status { border-top-color: rgba(255, 255, 255, 0.08); }
+th { background: transparent; }
+
+/* ---------- Vivid gradient cards, one colour per asset class ---------- */
+.hero .grid .kpi-card {
+  --tint: var(--tint-pnl);
+  min-height: 112px;
+  border-color: color-mix(in srgb, var(--tint) 45%, rgba(255, 255, 255, 0.15));
+  background:
+    radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--tint) 85%, #fff 15%) 0%, transparent 60%),
+    linear-gradient(180deg, var(--tint) 0%, color-mix(in srgb, var(--tint) 55%, #0b0b0b) 48%, #0b0b0b 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 16px 40px color-mix(in srgb, var(--tint) 30%, rgba(0, 0, 0, 0.4));
+}
+.hero .grid .kpi-card.asset-stocks { --tint: var(--tint-stocks); }
+.hero .grid .kpi-card.asset-bonds { --tint: var(--tint-bonds); }
+.hero .grid .kpi-card.asset-structured { --tint: var(--tint-structured); }
+.hero .grid .kpi-card.asset-cash { --tint: var(--tint-cash); }
+.hero .grid .kpi-card.asset-private { --tint: var(--tint-private); }
+.hero .grid .kpi-card.asset-realestate { --tint: var(--tint-realestate); }
+.hero .grid .kpi-card.asset-other { --tint: var(--tint-other); }
+.hero .grid .kpi-card.has-debt { border-color: rgba(255, 143, 136, 0.7); }
+
+.hero .grid .kpi-card .kpi-card-copy > span { color: rgba(255, 255, 255, 0.82); font-weight: 600; }
+.hero .grid .kpi-card .kpi-card-copy > strong { color: #fff; text-shadow: 0 1px 12px rgba(0, 0, 0, 0.25); }
+.hero .grid .kpi-card .kpi-card-copy > small { color: rgba(255, 255, 255, 0.72); }
+.hero .grid .kpi-card .kpi-card-copy > strong.negative { color: #ffb3ad; }
+.hero .grid .kpi-card .kpi-card-copy > strong.positive { color: #b8f5d6; }
+.hero .grid .kpi-card.has-debt small { color: #ffd2ce; }
+
+/* Profile card in the sidebar: dark glass with a gold wash */
+.brand {
+  color-scheme: dark;
+  --text: #f4efe4;
+  --muted: #b8b0a2;
+  color: #f4efe4;
+  border-color: rgba(231, 187, 90, 0.35);
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(231, 187, 90, 0.30), transparent 60%),
+    var(--glass-dark);
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+.brand .brand-card { border-top-color: rgba(255, 255, 255, 0.12); }
+.brand .brand-row, .brand .eyebrow, .brand .muted { color: rgba(244, 239, 228, 0.72); }
+.brand .brand-row strong { color: #f4efe4; }
+.brand .brand-role { color: rgba(231, 187, 90, 0.85); }
+.brand .currency-toggle { border-color: rgba(255, 255, 255, 0.16); background: rgba(255, 255, 255, 0.06); }
+.brand .currency-toggle button { color: rgba(244, 239, 228, 0.8); background: transparent; border-color: transparent; }
+.brand .currency-toggle button.active { color: #1b1408; background: linear-gradient(180deg, #f3d48c, #d9a441); }
+.brand .brand-monogram { background: rgba(255, 255, 255, 0.1); color: #f4efe4; border-color: rgba(255, 255, 255, 0.2); }
+
+/* Hero total: dark glass with a warm gold wash */
+.hero-stat {
+  background:
+    radial-gradient(120% 80% at 0% 0%, rgba(231, 187, 90, 0.38), transparent 60%),
+    var(--glass-dark);
+  border-color: rgba(231, 187, 90, 0.4);
+}
+
+/* Bank cards pick up their own bank colour */
+.dashboard-bank-card {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--bank-color, #888) 55%, transparent) 0%, rgba(11, 11, 11, 0.75) 70%),
+    var(--glass-dark);
+}
+
+/* ---------- Header, buttons, inputs ---------- */
+header {
+  color-scheme: dark;
+  --text: #f4efe4;
+  --muted: #b8b0a2;
+  --line: rgba(255, 255, 255, 0.12);
+  --panel: rgba(255, 255, 255, 0.05);
+  --panel-2: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  border-color: var(--glass-border);
+  border-radius: 999px;
+  background: var(--glass-dark);
+  box-shadow: var(--glass-edge), var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-blur-strong);
+  backdrop-filter: var(--glass-blur-strong);
+}
+
+button {
+  border-radius: 999px;
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+button:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.14);
+}
+button.primary {
+  color: #1b1408;
+  background: linear-gradient(180deg, #f3d48c, #d9a441);
+  border-color: rgba(255, 232, 180, 0.8);
+}
+button.nav { border-radius: 12px; background: transparent; box-shadow: none; }
+button.nav.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+textarea { border-radius: 14px; }
+
+/* ---------- Overlays ---------- */
+.kpi-dialog,
+.actions-panel,
+.structured-toast {
+  color-scheme: dark;
+  --text: #f4efe4;
+  --muted: #b8b0a2;
+  --line: rgba(255, 255, 255, 0.12);
+  --panel: rgba(255, 255, 255, 0.04);
+  --panel-2: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  background: rgba(16, 14, 12, 0.84);
+  border-color: var(--glass-border);
+  box-shadow: var(--glass-edge), 0 30px 90px rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: var(--glass-blur-strong);
+  backdrop-filter: var(--glass-blur-strong);
+}
+.kpi-modal {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* ---------- Phone ---------- */
+@media (max-width: 780px) {
+  body .app header {
+    border-radius: 22px;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(14, 12, 10, 0.72);
+  }
+  .mobile-tabbar {
+    color-scheme: dark;
+    --text: #f4efe4;
+    --muted: #b8b0a2;
+    left: 10px;
+    right: 10px;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    padding: 4px 6px;
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    background: rgba(14, 12, 10, 0.62);
+    -webkit-backdrop-filter: var(--glass-blur-strong);
+    backdrop-filter: var(--glass-blur-strong);
+  }
+  body { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+  #appSidebar {
+    background: rgba(14, 12, 10, 0.72);
+    border-right-color: var(--glass-border);
+    -webkit-backdrop-filter: var(--glass-blur-strong);
+    backdrop-filter: var(--glass-blur-strong);
+  }
+  .hero .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .hero .grid .kpi-card { min-height: 92px; padding: 12px; }
+  .hero .grid .kpi-card .kpi-card-copy > strong { font-size: var(--fs-lg); overflow-wrap: anywhere; }
+}
+
+/* Respect "Reduce transparency" (iOS / macOS) and browsers without backdrop-filter */
+@media (prefers-reduced-transparency: reduce) {
+  :root { --glass: #1d1a17; --glass-dark: #14120f; --glass-strong: #14120f; }
+  .app, .stat, .panel, .bank-card, .structured-card, .dashboard-bank-card, .executive-cell,
+  nav, .sidebar-pulse, .market-ticker, header, .kpi-dialog, .actions-panel, .structured-toast,
+  .mobile-tabbar, #appSidebar {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root { --glass: #1d1a17; --glass-dark: #14120f; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stat:hover, .bank-card:hover, .dashboard-bank-card:hover, .structured-card:hover { transform: none; }
+}

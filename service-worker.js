@@ -1,9 +1,10 @@
 // Bump CACHE_NAME each time a file changes, so the iPhone picks up the new version.
-const CACHE_NAME = "patrimoine-pwa-v27";
+const CACHE_NAME = "patrimoine-pwa-v28";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./styles.css",
+  "./glass.css",
   "./app.js",
   "./manifest.json",
   "./icons/icon-192.png",
@@ -18,7 +19,7 @@ const APP_SHELL = [
   "./assets/bank-logos/transat.png",
   "./assets/bank-logos/zurich.svg"
 ];
-const APP_FILES = new Set(["index.html", "styles.css", "app.js", "manifest.json"]);
+const APP_FILES = new Set(["index.html", "styles.css", "glass.css", "app.js", "manifest.json"]);
 
 self.addEventListener("install", event => {
   // cache: "reload" skips the browser's HTTP cache, so a new version never installs stale files
